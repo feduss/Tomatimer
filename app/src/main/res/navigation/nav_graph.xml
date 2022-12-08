@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/setupFragment">
+
+    <fragment
+        android:id="@+id/setupFragment"
+        android:name="com.feduss.pomodoro.SetupFragment"
+        android:label="fragment_setup" >
+        <action
+            android:id="@+id/goToTimerPage"
+            app:destination="@id/timerFragment" />
+        <action
+            android:id="@+id/goToEditSettingsPage"
+            app:destination="@id/editSettingsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/timerFragment"
+        android:name="com.feduss.pomodoro.TimerFragment"
+        android:label="fragment_timer" />
+    <fragment
+        android:id="@+id/editSettingsFragment"
+        android:name="com.feduss.pomodoro.EditSettingsFragmentViewController"
+        android:label="fragment_edit_settings_view_controller" />
+</navigation>
