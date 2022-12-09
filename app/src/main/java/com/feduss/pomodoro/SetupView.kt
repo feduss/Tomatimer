@@ -19,8 +19,8 @@ import androidx.core.graphics.toColorInt
 
 @Preview
 @Composable
-fun SetupView(@PreviewParameter(ChipListProvider::class) chips: ArrayList<Chip>,
-              onChipClicked: (String, String, String) -> Unit = {_, _, _ ->},
+fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
+              onChipClicked: (String) -> Unit = {},
               onPlayIconClicked: () -> Unit = {}) {
     Column(
         Modifier.padding(32.dp, 24.dp, 32.dp, 0.dp).fillMaxHeight(),
@@ -36,6 +36,7 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: ArrayList<Chip>,
             items(chips) { chip ->
                 ChipView(
                     chip = chip,
+                    tag = chip.type.tag,
                     fontSize = 10f,
                     onChipClicked = onChipClicked
                 )

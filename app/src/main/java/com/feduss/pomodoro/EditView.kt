@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 
@@ -21,17 +22,18 @@ private const val minTimerValue = 0
 
 @Preview
 @Composable
-fun EditView(sectionTitle: String = "Pomodoro", startValue: String = "25", unit: String = "min",
-             type: ValueType = ValueType.Time) {
+fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro", "25", "min", ChipType.Tomato),
+             type: ValueType = ValueType.Time, onConfirmClicked: (ChipType, String) -> Unit = {_, _ ->}) {
     var newValue by remember {
-        mutableStateOf(startValue.toInt())
+        mutableStateOf(chip.value.toInt())
     }
+    val unit = chip.unit
     Column(
         Modifier.padding(8.dp, 24.dp, 8.dp, 0.dp).fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = sectionTitle,
+            text = chip.title,
             color = Color(("#E3BAFF".toColorInt()))
         )
         Row(
@@ -85,7 +87,7 @@ fun EditView(sectionTitle: String = "Pomodoro", startValue: String = "25", unit:
                 )
             },
             onClick = {
-                /*TODO*/
+                onConfirmClicked(chip.type, newValue.toString())
             }
         )
     }

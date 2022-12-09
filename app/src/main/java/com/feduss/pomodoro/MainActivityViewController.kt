@@ -21,6 +21,7 @@ class MainActivityViewController : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val activity = this
         setContent {
             MaterialTheme() {
                 navController = rememberNavController()
@@ -29,7 +30,11 @@ class MainActivityViewController : ComponentActivity() {
                 val screenWidth = configuration.screenWidthDp.dp
                 Box(
                     modifier = Modifier.width(screenWidth).height(screenHeight)) {
-                    MainActivity(navController = navController, chips = viewModel.chips)
+                    MainActivity(
+                        navController = navController,
+                        activity = activity,
+                        viewModel = viewModel
+                    )
                 }
             }
         }

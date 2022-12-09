@@ -2,7 +2,7 @@ package com.feduss.pomodoro
 
 sealed class Section(val baseRoute: String, val parametricRoute: String = "") {
     object Setup: Section("setup")
-    object Edit: Section("edit", "edit/{title}/{value}?unit={unit}")
+    object Edit: Section("edit", "edit/{tag}")
     object Timer: Section("timer")
 
     fun withArgs(args: List<String>, optionalArgs: Map<String, String>? = null): String {

@@ -21,8 +21,8 @@ import androidx.core.graphics.toColorInt
 @OptIn(ExperimentalUnitApi::class)
 @Preview
 @Composable
-fun ChipView(@PreviewParameter(ChipProvider::class) chip: Chip,
-             fontSize: Float = 10f, onChipClicked: (String, String, String) -> Unit = {_, _, _ -> }) {
+fun ChipView(@PreviewParameter(ChipProvider::class) chip: Chip, tag: Int = 0,
+             fontSize: Float = 10f, onChipClicked: (String) -> Unit = {}) {
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
         Button(
@@ -34,7 +34,7 @@ fun ChipView(@PreviewParameter(ChipProvider::class) chip: Chip,
             ),
             contentPadding = PaddingValues(0.dp),
             onClick = {
-                onChipClicked(chip.title, chip.value, chip.unit)
+                onChipClicked(tag.toString())
             }
         ) {
             Column(
