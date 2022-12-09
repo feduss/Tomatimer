@@ -30,12 +30,12 @@ fun MainActivity(navController: NavHostController,
                     navController.navigate(Section.Edit.withArgs(args)) {
                         launchSingleTop = true
                     }
-                }
-            ) {
-                navController.navigate(Section.Timer.baseRoute) {
-                    launchSingleTop = true
-                }
-            }
+                },
+                onPlayIconClicked = {
+                    navController.navigate(Section.Timer.baseRoute) {
+                        launchSingleTop = true
+                    }
+                })
         }
         composable( route = Section.Edit.parametricRoute, arguments = listOf(
                 navArgument(Params.Tag.name) { type = NavType.StringType }
@@ -51,7 +51,7 @@ fun MainActivity(navController: NavHostController,
             }
         }
         composable(route = Section.Timer.baseRoute) {
-            TimerView()
+            TimerView(viewModel.getData(activity))
         }
     }
 }

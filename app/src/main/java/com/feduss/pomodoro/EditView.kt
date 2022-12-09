@@ -1,7 +1,8 @@
 package com.feduss.pomodoro
 
-import android.widget.TextView
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -29,7 +30,9 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
     }
     val unit = chip.unit
     Column(
-        Modifier.padding(8.dp, 24.dp, 8.dp, 0.dp).fillMaxHeight(),
+        Modifier
+            .padding(8.dp, 24.dp, 8.dp, 24.dp)
+            .fillMaxHeight(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
@@ -37,14 +40,16 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
             color = Color(("#E3BAFF".toColorInt()))
         )
         Row(
-            Modifier.fillMaxWidth().weight(1f),
+            Modifier
+                .fillMaxWidth()
+                .weight(1f),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
                 content = {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_sub_white_24dp),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_sub_24dp),
                         contentDescription = "Sub icon",
                         tint = Color(("#E3BAFF".toColorInt()))
                     )
@@ -65,7 +70,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
             IconButton(
                 content = {
                     Icon(
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_add_white_24dp),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_add_24dp),
                         contentDescription = "ADD icon",
                         tint = Color(("#E3BAFF".toColorInt()))
                     )
@@ -79,11 +84,18 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
             )
         }
         IconButton(
+            modifier = Modifier
+                .width(48.dp)
+                .aspectRatio(1f)
+                .background(
+                    color = Color(("#E3BAFF".toColorInt())),
+                    shape = CircleShape
+                ),
             content = {
                 Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_check_pink_24dp),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_check_24dp),
                     contentDescription = "Confirm icon",
-                    tint = Color(("#E3BAFF".toColorInt()))
+                    tint = Color.Black
                 )
             },
             onClick = {
