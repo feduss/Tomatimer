@@ -1,9 +1,15 @@
 package com.feduss.pomodoro
 
+import android.content.Context
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -45,13 +51,47 @@ fun MainActivity(navController: NavHostController,
             tag?.let { tagNotNull ->
                 val chip = viewModel.getData(activity)[tagNotNull]
                 EditView(chip, onConfirmClicked = { type, newValue ->
-                    viewModel.userHasUpdatedSettings(activity, type, newValue)
+                    viewModel.userHasUpdatedPrefOfChip(activity, type.valuePrefKey, newValue)
                     navController.popBackStack()
                 })
             }
         }
         composable(route = Section.Timer.baseRoute) {
-            TimerView(viewModel.getData(activity))
+            TimerView(
+                chips = viewModel.getData(activity),
+                onTimerPausedOrStopped = { chipType, secondsRemaining ->
+                    viewModel.userHasUpdatedPrefOfChip(
+                        activity = activity,
+                        pref = chipType.valueRemainingPrefKey,
+                        newValue = secondsRemaining.toString()
+                    )
+
+                    //timer is finished, vibrate! //TODO: to test
+                    if (secondsRemaining == null) {
+                        val vibrationPattern = longArrayOf(0, 500, 50, 300)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            val vibratorService = activity.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                            vibratorService.defaultVibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
+                        } else {
+                            val vibrator = activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                            if (vibrator.hasVibrator()) {
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
+                                } else {
+                                    //deprecated in API 26
+                                    vibrator.vibrate(vibrationPattern, -1)
+                                }
+                            }
+                        }
+
+
+                    }
+                },
+                onTimerResumed = { chipType ->
+                    viewModel.getPrefOfChip(activity, chipType.valueRemainingPrefKey)?.toInt() ?: 0
+                }
+            )
         }
     }
 }

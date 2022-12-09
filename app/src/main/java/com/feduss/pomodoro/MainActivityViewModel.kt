@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
@@ -18,7 +17,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getData(activity: Activity): List<Chip> {
         for(chip in chips) {
-            val loadedValue = getValueOfChip(activity, chip.type)
+            val loadedValue = getPrefOfChip(activity, chip.type.valuePrefKey)
             if (!loadedValue.isNullOrEmpty()) {
                 chip.value = loadedValue
             }
@@ -30,23 +29,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return activity.getPreferences(Context.MODE_PRIVATE)
     }
 
-    fun getValueOfChip(activity: Activity, type: ChipType): String? {
-        return when (type) {
-            ChipType.Tomato -> getSharedPreferences(activity).getString(ChipType.Tomato.prefKey, "")
-            ChipType.ShortBreak -> getSharedPreferences(activity).getString(ChipType.ShortBreak.prefKey, "")
-            ChipType.CyclesNumber -> getSharedPreferences(activity).getString(ChipType.CyclesNumber.prefKey, "")
-            ChipType.LongBreak -> getSharedPreferences(activity).getString(ChipType.LongBreak.prefKey, "")
-            else -> null
-        }
+    fun getPrefOfChip(activity: Activity, pref: String): String? {
+        return getSharedPreferences(activity).getString(pref, "")
     }
 
-    fun userHasUpdatedSettings(activity: Activity, type: ChipType, newValue: String) {
-        when (type) {
-            ChipType.Tomato -> getSharedPreferences(activity).edit().putString(ChipType.Tomato.prefKey, newValue).apply()
-            ChipType.ShortBreak -> getSharedPreferences(activity).edit().putString(ChipType.ShortBreak.prefKey, newValue).apply()
-            ChipType.CyclesNumber -> getSharedPreferences(activity).edit().putString(ChipType.CyclesNumber.prefKey, newValue).apply()
-            ChipType.LongBreak -> getSharedPreferences(activity).edit().putString(ChipType.LongBreak.prefKey, newValue).apply()
-            else -> {}
-        }
+    fun userHasUpdatedPrefOfChip(activity: Activity, pref: String, newValue: String?) {
+        getSharedPreferences(activity).edit().putString(pref, newValue).apply()
     }
 }
