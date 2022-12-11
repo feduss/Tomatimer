@@ -25,7 +25,7 @@ import androidx.core.graphics.toColorInt
 @Composable
 fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               onTimerPausedOrStopped: (ChipType, Int?) -> Unit = { _, _ ->},
-              onTimerResumed: (ChipType) -> Int = { 0 },
+              onTimerStartedOrResumed: (ChipType, Int?) -> Int = { _, _ -> 0 },
               onBackToHome: () -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
@@ -147,6 +147,11 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         }
     }
 
+    //For every new timer (when the chip type changed), set a new background alert
+    LaunchedEffect(currentChip.type) {
+        onTimerStartedOrResumed(currentChip.type, maxTimerSeconds)
+    }
+
     CircularProgressIndicator(
         progress = progress.toFloat(),
         modifier = Modifier.fillMaxSize(),
@@ -190,9 +195,11 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                 sliderColor = if (isTimerActive) inactiveColor else activeColor
 
                 if (isTimerActive) {
+                    //Cancel the background alert and save the seconds remaining
                     onTimerPausedOrStopped(currentChip.type, currentTimerSecondsRemaining)
                 } else {
-                    maxTimerSeconds = onTimerResumed(currentChip.type)
+                    //Set the background alert with the seconds remaining saved in shared prefs (null input)
+                    maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, null)
                 }
 
                 isTimerActive = !isTimerActive

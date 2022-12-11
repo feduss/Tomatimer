@@ -10,13 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import androidx.navigation.navigation
+import java.util.Calendar
 
 @Composable
 fun MainActivity(navController: NavHostController,
@@ -68,6 +67,8 @@ fun MainActivity(navController: NavHostController,
                         newValue = secondsRemaining.toString()
                     )
 
+                    activity.removeBackgroundAlert()
+
                     //timer is finished, vibrate! //TODO: to test
                     if (secondsRemaining == null) {
                         Log.e("VIBRATION:", " OK")
@@ -91,8 +92,16 @@ fun MainActivity(navController: NavHostController,
 
                     }
                 },
-                onTimerResumed = { chipType ->
-                    viewModel.getPrefOfChip(activity, chipType.valueRemainingPrefKey)?.toInt() ?: 0
+                onTimerStartedOrResumed = { chipType, secondsRemaming ->
+                    val secondsRemainings =
+                        secondsRemaming ?:
+                        (viewModel.getPrefOfChip(activity, chipType.valueRemainingPrefKey)?.toInt() ?: 0)
+
+                    val millisSince1970 = Calendar.getInstance().timeInMillis
+
+                    activity.setBackgroundAlert(secondsRemainings * 1000L, millisSince1970)
+
+                    secondsRemainings
                 },
                 onBackToHome = {
                     navController.navigate(Section.Setup.baseRoute) {
