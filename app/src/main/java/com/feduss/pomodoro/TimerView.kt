@@ -24,73 +24,127 @@ import androidx.core.graphics.toColorInt
 @Preview
 @Composable
 fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
-              onTimerPausedOrStopped: (ChipType, Int?) -> Unit = { _, _ ->}, onTimerResumed: (ChipType) -> Int = { 0 }) {
-    var isTimerOn = true
+              onTimerPausedOrStopped: (ChipType, Int?) -> Unit = { _, _ ->},
+              onTimerResumed: (ChipType) -> Int = { 0 },
+              onBackToHome: () -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
     val activeColor = Color("#649e5d".toColorInt())
     val inactiveColor = Color("#a15757".toColorInt())
 
-    var currentChipIndex by remember {
+    //Number of the cycle of the tomato timer
+    val totalCycles by remember(Unit) {
+        mutableStateOf(chips[2].value.toInt())
+    }
+
+    //Current timer index type
+    var currentChipIndex by remember(Unit) {
+        mutableStateOf(ChipType.Tomato.tag)
+    }
+
+    //Current timer
+    val currentChip = chips[currentChipIndex]
+
+    //Current tomato cycle
+    var currentCycle by remember(Unit) {
         mutableStateOf(0)
     }
 
-    var totalSecondsRemaing = 0
+    //Timer state
+    var isTimerActive by remember(currentChip.type) {
+        mutableStateOf(true)
+    }
 
-    val currentChip = chips[currentChipIndex]
-
-    var progress by remember {
+    //Progress of the rounded progress bar
+    var progress by remember(currentChip.type) {
         mutableStateOf(1.0)
     }
 
-    var sliderColor by remember {
+    //Progress color of the rounded progress bar
+    var sliderColor by remember(currentChip.type) {
         mutableStateOf(activeColor)
     }
 
-    val title by remember {
+    //Upper title of the screen, that is the name of the timer
+    val title by remember(currentChip.type) {
         mutableStateOf(currentChip.title)
     }
 
-    var value by remember {
-        val minutes =currentChip.value
+    //Middle label, that shows the minutes:seconds remaining
+    var value by remember(currentChip.type) {
+        val minutes = currentChip.value
         mutableStateOf("$minutes:00")
     }
 
-    var timerSeconds by remember {
+    //Timer total seconds, that never changes, except for a change of timer type or status
+    var maxTimerSeconds by remember(currentChip.type) {
         val minutes = currentChip.value.toInt()
         mutableStateOf(minutes * 60)
     }
 
-    var iconImage by remember {
+    //Timer seconds remaining, that changes every seconds when the timer is active
+    //They could change alse if the chip type change, or it is edited after a resume
+    var currentTimerSecondsRemaining by remember(currentChip.type){
+        val minutes = currentChip.value.toInt()
+        mutableStateOf(minutes * 60)
+    }
+
+    //Icon image of the lower button
+    var iconImage by remember(currentChip.type) {
         mutableStateOf(pauseIcon)
     }
 
-    //TODO: fix pause
-    var timer by remember {
-        mutableStateOf(object : CountDownTimer(timerSeconds * 1000L, 1000) {
+    val timer by remember(currentChip.type, maxTimerSeconds) {
+        val chipTimerSeconds = currentChip.value.toInt() * 60
+        mutableStateOf(object : CountDownTimer(
+            maxTimerSeconds * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                totalSecondsRemaing = (millisUntilFinished / 1000).toInt()
-                val minutesRemaining = (totalSecondsRemaing / 60)
-                val secondsRemaining = (totalSecondsRemaing % 60)
+                currentTimerSecondsRemaining = (millisUntilFinished / 1000).toInt()
+                val minutesRemaining = (currentTimerSecondsRemaining / 60)
+                val secondsRemaining = (currentTimerSecondsRemaining % 60)
 
                 val minutesString = if (minutesRemaining < 10) "0$minutesRemaining" else "$minutesRemaining"
                 val secondsString = if (secondsRemaining < 10) "0$secondsRemaining" else "$secondsRemaining"
 
                 value = "$minutesString:$secondsString"
-                //TODO: to semplify
-                progress = (1f - (1f - totalSecondsRemaing.toFloat().div(timerSeconds))).toDouble()
+
+
+                progress = (1f - (1f - currentTimerSecondsRemaining.toFloat().div(chipTimerSeconds))).toDouble()
             }
 
             override fun onFinish() {
                 onTimerPausedOrStopped(currentChip.type, null)
-                //TODO: handle the next timer or stop the execution
+
+                when (currentChip.type) {
+                    ChipType.Tomato -> {
+                        if (currentCycle == totalCycles - 1) {
+                            currentChipIndex = ChipType.LongBreak.tag
+                        } else {
+                            currentChipIndex = ChipType.ShortBreak.tag
+                        }
+                    }
+                    ChipType.ShortBreak -> {
+                        currentChipIndex = ChipType.Tomato.tag
+                        currentCycle += 1
+                    }
+                    ChipType.LongBreak -> {
+                        cancel()
+                        onBackToHome()
+                    }
+                    else -> {}
+                }
             }
 
         })
     }
 
-    LaunchedEffect(currentChip.type) {
-        timer.start()
+    //Conditional timer auto-start/pause (change of timer type or timer state)
+    LaunchedEffect(currentChip.type, isTimerActive) {
+        if (isTimerActive) {
+            timer.start()
+        } else {
+            timer.cancel()
+        }
     }
 
     CircularProgressIndicator(
@@ -132,18 +186,16 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                 )
             },
             onClick = {
-                iconImage = if (isTimerOn) playIcon else pauseIcon
-                sliderColor = if (isTimerOn) inactiveColor else activeColor
+                iconImage = if (isTimerActive) playIcon else pauseIcon
+                sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                if (isTimerOn) {
-                    timer.cancel()
-                    onTimerPausedOrStopped(currentChip.type, totalSecondsRemaing)
+                if (isTimerActive) {
+                    onTimerPausedOrStopped(currentChip.type, currentTimerSecondsRemaining)
                 } else {
-                    timerSeconds = onTimerResumed(currentChip.type)
-                    timer.start()
+                    maxTimerSeconds = onTimerResumed(currentChip.type)
                 }
 
-                isTimerOn = !isTimerOn
+                isTimerActive = !isTimerActive
             }
         )
     }

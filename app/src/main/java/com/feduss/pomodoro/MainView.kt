@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -15,6 +16,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navigation
 
 @Composable
 fun MainActivity(navController: NavHostController,
@@ -68,6 +70,7 @@ fun MainActivity(navController: NavHostController,
 
                     //timer is finished, vibrate! //TODO: to test
                     if (secondsRemaining == null) {
+                        Log.e("VIBRATION:", " OK")
                         val vibrationPattern = longArrayOf(0, 500, 50, 300)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                             val vibratorService = activity.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -90,6 +93,11 @@ fun MainActivity(navController: NavHostController,
                 },
                 onTimerResumed = { chipType ->
                     viewModel.getPrefOfChip(activity, chipType.valueRemainingPrefKey)?.toInt() ?: 0
+                },
+                onBackToHome = {
+                    navController.navigate(Section.Setup.baseRoute) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
