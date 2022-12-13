@@ -12,17 +12,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.wear.compose.navigation.SwipeDismissableNavHost
+import androidx.wear.compose.navigation.composable
 import java.util.Calendar
 
 @Composable
 fun MainActivity(navController: NavHostController,
-                 startDestination: String = Section.Setup.baseRoute,
                  activity: MainActivityViewController,
                  viewModel: MainActivityViewModel) {
-    NavHost(
+    val startDestination = Section.Setup.baseRoute
+
+    SwipeDismissableNavHost(
         navController = navController,
         startDestination = startDestination
     ) {
@@ -42,7 +43,27 @@ fun MainActivity(navController: NavHostController,
                     navController.navigate(Section.Timer.baseRoute) {
                         launchSingleTop = true
                     }
-                })
+                },
+                onRestoreSavedTimerFlow = {
+                    val chipIndexFromPref = viewModel.getPref(activity, PrefParamName.CurrentChip.name)
+                    val cycleIndexFromPref = viewModel.getPref(activity, PrefParamName.CurrentCycle.name)
+                    val secondsRemainingFromPref = viewModel.getPref(activity, PrefParamName.SecondsRemaining.name)
+                    if(chipIndexFromPref != null && cycleIndexFromPref != null && secondsRemainingFromPref != null) {
+                        navController.navigate(Section.Timer.withArgs(
+                            optionalArgs = mapOf(
+                                Pair(OptionalParams.ChipIndex.name, chipIndexFromPref),
+                                Pair(OptionalParams.CycleIndex.name, cycleIndexFromPref),
+                                Pair(OptionalParams.TimerSeconds.name, secondsRemainingFromPref)
+                            )
+                        )){
+                            launchSingleTop = true
+                        }
+                        viewModel.setPref(activity, PrefParamName.CurrentChip.name, null)
+                        viewModel.setPref(activity, PrefParamName.CurrentCycle.name, null)
+                        viewModel.setPref(activity, PrefParamName.SecondsRemaining.name, null)
+                    }
+                }
+            )
         }
         composable( route = Section.Edit.parametricRoute, arguments = listOf(
                 navArgument(Params.Tag.name) { type = NavType.StringType }
@@ -52,19 +73,54 @@ fun MainActivity(navController: NavHostController,
             tag?.let { tagNotNull ->
                 val chip = viewModel.getData(activity)[tagNotNull]
                 EditView(chip, onConfirmClicked = { type, newValue ->
-                    viewModel.userHasUpdatedPrefOfChip(activity, type.valuePrefKey, newValue)
+                    viewModel.setPref(activity, type.valuePrefKey, newValue)
                     navController.popBackStack()
                 })
             }
         }
-        composable(route = Section.Timer.baseRoute) {
+        composable(route = Section.Timer.parametricRoute, arguments = listOf(
+            navArgument(OptionalParams.ChipIndex.name) {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument(OptionalParams.CycleIndex.name) {
+                type = NavType.StringType
+                nullable = true
+            },
+            navArgument(OptionalParams.TimerSeconds.name) {
+                type = NavType.StringType
+                nullable = true
+            },
+        )) { navBackStackEntry ->
+            val initialChipIndex = navBackStackEntry.arguments?.getString(OptionalParams.ChipIndex.name) ?: "0"
+            val initialCycle = navBackStackEntry.arguments?.getString(OptionalParams.CycleIndex.name) ?: "0"
+            val initialTimerSeconds = navBackStackEntry.arguments?.getString(OptionalParams.TimerSeconds.name) ?: "0"
             TimerView(
+                initialChipIndex = initialChipIndex.toInt(),
+                initialCycle = initialCycle.toInt(),
+                initialTimerSeconds = initialTimerSeconds.toInt(),
                 chips = viewModel.getData(activity),
-                onTimerPausedOrStopped = { chipType, secondsRemaining ->
-                    viewModel.userHasUpdatedPrefOfChip(
+                onTimerPausedOrStopped = { chipType, currentCycle, secondsRemaining ->
+
+                    //Save the current chip index
+                    viewModel.setPref(
                         activity = activity,
-                        pref = chipType.valueRemainingPrefKey,
-                        newValue = secondsRemaining.toString()
+                        pref = PrefParamName.CurrentChip.name,
+                        newValue = chipType.tag.toString()
+                    )
+
+                    //Save the current cycle
+                    viewModel.setPref(
+                        activity = activity,
+                        pref = PrefParamName.CurrentCycle.name,
+                        newValue = currentCycle?.toString()
+                    )
+
+                    //Save the timer seconds remaining
+                    viewModel.setPref(
+                        activity = activity,
+                        pref = PrefParamName.SecondsRemaining.name,
+                        newValue = secondsRemaining?.toString()
                     )
 
                     activity.removeBackgroundAlert()
@@ -95,7 +151,7 @@ fun MainActivity(navController: NavHostController,
                 onTimerStartedOrResumed = { chipType, secondsRemaming ->
                     val secondsRemainings =
                         secondsRemaming ?:
-                        (viewModel.getPrefOfChip(activity, chipType.valueRemainingPrefKey)?.toInt() ?: 0)
+                        (viewModel.getPref(activity, PrefParamName.SecondsRemaining.name)?.toInt() ?: 0)
 
                     val millisSince1970 = Calendar.getInstance().timeInMillis
 
@@ -103,7 +159,11 @@ fun MainActivity(navController: NavHostController,
 
                     secondsRemainings
                 },
-                onBackToHome = {
+                onBackToHome = { removeBackgroundAlert ->
+                    if (removeBackgroundAlert) {
+                        activity.removeBackgroundAlert()
+                    }
+
                     navController.navigate(Section.Setup.baseRoute) {
                         launchSingleTop = true
                     }

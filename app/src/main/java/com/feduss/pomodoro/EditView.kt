@@ -17,6 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.CompactButton
 
 private const val maxTimerValue = 60
 private const val minTimerValue = 0
@@ -83,14 +85,16 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                 }
             )
         }
-        IconButton(
+        val color = Color(("#E3BAFF".toColorInt()))
+        CompactButton(
             modifier = Modifier
                 .width(48.dp)
                 .aspectRatio(1f)
                 .background(
-                    color = Color(("#E3BAFF".toColorInt())),
+                    color = color,
                     shape = CircleShape
                 ),
+            colors = ButtonDefaults.primaryButtonColors(color, color),
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_check_24dp),

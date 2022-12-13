@@ -1,15 +1,14 @@
 package com.feduss.pomodoro
 
 import android.os.CountDownTimer
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -19,18 +18,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.wear.compose.material.CompactButton
+import androidx.wear.compose.material.SwipeToDismissBox
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.ButtonDefaults
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
-              onTimerPausedOrStopped: (ChipType, Int?) -> Unit = { _, _ ->},
+              initialChipIndex: Int = 0,
+              initialCycle: Int = 0,
+              initialTimerSeconds: Int = 0,
+              onTimerPausedOrStopped: (ChipType, Int?, Int?) -> Unit = { _, _, _ ->},
               onTimerStartedOrResumed: (ChipType, Int?) -> Int = { _, _ -> 0 },
-              onBackToHome: () -> Unit = {}) {
+              onBackToHome: (Boolean) -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
     val activeColor = Color("#649e5d".toColorInt())
     val inactiveColor = Color("#a15757".toColorInt())
+
+    var isAlertDialogVisible by remember {
+        mutableStateOf(false)
+    }
 
     //Number of the cycle of the tomato timer
     val totalCycles by remember(Unit) {
@@ -39,7 +50,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Current timer index type
     var currentChipIndex by remember(Unit) {
-        mutableStateOf(ChipType.Tomato.tag)
+        mutableStateOf(initialChipIndex)
     }
 
     //Current timer
@@ -47,7 +58,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Current tomato cycle
     var currentCycle by remember(Unit) {
-        mutableStateOf(0)
+        mutableStateOf(initialCycle)
     }
 
     //Timer state
@@ -72,21 +83,25 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Middle label, that shows the minutes:seconds remaining
     var value by remember(currentChip.type) {
-        val minutes = currentChip.value
-        mutableStateOf("$minutes:00")
+        val time = currentChip.value.toInt()
+        val minutes: Int = time/60
+        val seconds: Int = time%60
+        mutableStateOf("$minutes:$seconds")
     }
 
     //Timer total seconds, that never changes, except for a change of timer type or status
     var maxTimerSeconds by remember(currentChip.type) {
-        val minutes = currentChip.value.toInt()
-        mutableStateOf(minutes * 60)
+        val seconds =
+            if (initialTimerSeconds > 0)
+                initialTimerSeconds else
+                currentChip.value.toInt() * 60
+        mutableStateOf(seconds)
     }
 
     //Timer seconds remaining, that changes every seconds when the timer is active
     //They could change alse if the chip type change, or it is edited after a resume
     var currentTimerSecondsRemaining by remember(currentChip.type){
-        val minutes = currentChip.value.toInt()
-        mutableStateOf(minutes * 60)
+        mutableStateOf(0)
     }
 
     //Icon image of the lower button
@@ -113,7 +128,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
             }
 
             override fun onFinish() {
-                onTimerPausedOrStopped(currentChip.type, null)
+                onTimerPausedOrStopped(currentChip.type, null, null)
 
                 when (currentChip.type) {
                     ChipType.Tomato -> {
@@ -129,7 +144,8 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                     }
                     ChipType.LongBreak -> {
                         cancel()
-                        onBackToHome()
+                        val removeBackgroundAlert = false
+                        onBackToHome(removeBackgroundAlert)
                     }
                     else -> {}
                 }
@@ -147,63 +163,152 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         }
     }
 
+    BackHandler() {
+        isAlertDialogVisible = true
+    }
+
     //For every new timer (when the chip type changed), set a new background alert
     LaunchedEffect(currentChip.type) {
         onTimerStartedOrResumed(currentChip.type, maxTimerSeconds)
     }
 
-    CircularProgressIndicator(
-        progress = progress.toFloat(),
-        modifier = Modifier.fillMaxSize(),
-        color = sliderColor,
-        strokeWidth = 16.dp
-    )
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = title,
-            color = Color("#E3BAFF".toColorInt()),
-            textAlign = TextAlign.Center
-        )
-        Text(
-            /*modifier = Modifier.weight(1f),*/
-            text = value,
-            color = Color("#E3BAFF".toColorInt()),
-            textAlign = TextAlign.Center
-        )
-        IconButton(
-            modifier = Modifier
-                .width(48.dp)
-                .aspectRatio(1f)
-                .background(
-                    color = Color("#E3BAFF".toColorInt()),
-                    shape = CircleShape
-                ),
-            content = {
-                Icon(
-                    imageVector = iconImage,
-                    contentDescription = "ADD icon",
-                    tint = Color.Black
-                )
-            },
-            onClick = {
-                iconImage = if (isTimerActive) playIcon else pauseIcon
-                sliderColor = if (isTimerActive) inactiveColor else activeColor
-
-                if (isTimerActive) {
-                    //Cancel the background alert and save the seconds remaining
-                    onTimerPausedOrStopped(currentChip.type, currentTimerSecondsRemaining)
-                } else {
-                    //Set the background alert with the seconds remaining saved in shared prefs (null input)
-                    maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, null)
+    SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
+        if (isAlertDialogVisible) {
+            Alert(
+                title = {
+                    Text(
+                        text = "Attenzione",
+                        textAlign = TextAlign.Center
+                    )
+                },
+                verticalArrangement = Arrangement.Center,
+                negativeButton = {
+                    val color = Color.DarkGray
+                    CompactButton(
+                        modifier = Modifier
+                            .width(48.dp)
+                            .aspectRatio(1f)
+                            .background(
+                                color = color,
+                                shape = CircleShape
+                            ),
+                        colors = ButtonDefaults.primaryButtonColors(color, color),
+                        content = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(
+                                    id = R.drawable.ic_close_24dp
+                                ),
+                                contentDescription = "Close icon",
+                                tint = Color.White
+                            )
+                        },
+                        onClick = {
+                            isAlertDialogVisible = false
+                        }
+                    )
+                },
+                positiveButton = {
+                    val color = Color("#E3BAFF".toColorInt())
+                    CompactButton(
+                        modifier = Modifier
+                            .width(48.dp)
+                            .aspectRatio(1f)
+                            .background(
+                                color = color,
+                                shape = CircleShape
+                            ),
+                        colors = ButtonDefaults.primaryButtonColors(color, color),
+                        content = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(
+                                    id = R.drawable.ic_check_24dp
+                                ),
+                                contentDescription = "Check icon",
+                                tint = Color.Black
+                            )
+                        },
+                        onClick = {
+                            if (isTimerActive) {
+                                val removeBackgroundAlert = true
+                                onBackToHome(removeBackgroundAlert)
+                            } else {
+                                val removeBackgroundAlert = false
+                                onTimerPausedOrStopped(currentChip.type, null, null)
+                                onBackToHome(removeBackgroundAlert)
+                            }
+                        }
+                    )
                 }
-
-                isTimerActive = !isTimerActive
+            ){
+                Text(
+                    text = "Vuoi terminare il timer?",
+                    textAlign = TextAlign.Center
+                )
             }
-        )
+
+        }
+        else {
+            CircularProgressIndicator(
+                progress = progress.toFloat(),
+                modifier = Modifier.fillMaxSize(),
+                color = sliderColor,
+                strokeWidth = 16.dp
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    color = Color("#E3BAFF".toColorInt()),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    /*modifier = Modifier.weight(1f),*/
+                    text = value,
+                    color = Color("#E3BAFF".toColorInt()),
+                    textAlign = TextAlign.Center
+                )
+                val color = Color("#E3BAFF".toColorInt())
+                CompactButton(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .aspectRatio(1f)
+                        .background(
+                            color = color,
+                            shape = CircleShape
+                        ),
+                    colors = ButtonDefaults.primaryButtonColors(color, color),
+                    content = {
+                        Icon(
+                            imageVector = iconImage,
+                            contentDescription = "ADD icon",
+                            tint = Color.Black
+                        )
+                    },
+                    onClick = {
+                        iconImage = if (isTimerActive) playIcon else pauseIcon
+                        sliderColor = if (isTimerActive) inactiveColor else activeColor
+
+                        if (isTimerActive) {
+                            //Cancel the background alert and save the seconds remaining
+                            onTimerPausedOrStopped(
+                                currentChip.type,
+                                currentCycle,
+                                currentTimerSecondsRemaining
+                            )
+                        } else {
+                            //Set the background alert with the seconds remaining saved in shared prefs (null input)
+                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, null)
+                        }
+
+                        isTimerActive = !isTimerActive
+                    }
+                )
+            }
+        }
     }
 }

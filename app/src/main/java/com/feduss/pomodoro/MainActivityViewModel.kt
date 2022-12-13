@@ -17,7 +17,7 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getData(activity: Activity): List<Chip> {
         for(chip in chips) {
-            val loadedValue = getPrefOfChip(activity, chip.type.valuePrefKey)
+            val loadedValue = getPref(activity, chip.type.valuePrefKey)
             if (!loadedValue.isNullOrEmpty()) {
                 chip.value = loadedValue
             }
@@ -29,11 +29,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
         return activity.getPreferences(Context.MODE_PRIVATE)
     }
 
-    fun getPrefOfChip(activity: Activity, pref: String): String? {
-        return getSharedPreferences(activity).getString(pref, "")
+    fun getPref(activity: Activity, pref: String): String? {
+        return getSharedPreferences(activity).getString(pref, null)
     }
 
-    fun userHasUpdatedPrefOfChip(activity: Activity, pref: String, newValue: String?) {
+    fun setPref(activity: Activity, pref: String, newValue: String?) {
         getSharedPreferences(activity).edit().putString(pref, newValue).apply()
     }
 }

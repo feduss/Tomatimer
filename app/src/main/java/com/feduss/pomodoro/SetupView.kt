@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,12 +17,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.CompactButton
 
 @Preview
 @Composable
 fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               onChipClicked: (String) -> Unit = {},
-              onPlayIconClicked: () -> Unit = {}) {
+              onPlayIconClicked: () -> Unit = {},
+              onRestoreSavedTimerFlow: () -> Unit = {}) {
+    onRestoreSavedTimerFlow()
     Column(
         Modifier.padding(32.dp, 16.dp, 32.dp, 8.dp).fillMaxHeight(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -44,14 +47,16 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                 )
             }
         }
-        IconButton(
+        val color = Color(("#E3BAFF".toColorInt()))
+        CompactButton(
             modifier = Modifier
-                .width(16.dp)
+                .width(32.dp)
                 .aspectRatio(1f)
                 .background(
-                    color = Color(("#E3BAFF".toColorInt())),
+                    color = color,
                     shape = CircleShape
                 ),
+            colors = ButtonDefaults.primaryButtonColors(color, color),
             content = {
                 Icon(
                     imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_24dp),

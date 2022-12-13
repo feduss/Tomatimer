@@ -9,10 +9,10 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_timer_24dp_test"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault">
+        android:theme="@style/Theme.App.Starting">
         <receiver
             android:name=".TimerReceiver"
             android:enabled="true"
