@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.App.Starting">
         <receiver
-            android:name=".TimerReceiver"
+            android:name=".receivers.TimerReceiver"
             android:enabled="true"
             android:exported="false"/>
 

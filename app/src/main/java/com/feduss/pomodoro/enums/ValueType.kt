@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.pomodoro.enums
 
 sealed class ValueType {
     object Time: ValueType()

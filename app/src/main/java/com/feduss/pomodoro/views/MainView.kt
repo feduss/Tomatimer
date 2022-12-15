@@ -15,6 +15,13 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
+import com.feduss.pomodoro.enums.OptionalParams
+import com.feduss.pomodoro.enums.Params
+import com.feduss.pomodoro.enums.PrefParamName
+import com.feduss.pomodoro.enums.Section
+import com.feduss.pomodoro.utils.AlarmUtils
+import com.feduss.pomodoro.utils.NotificationUtils
+import com.feduss.pomodoro.utils.PrefsUtils
 import java.util.Calendar
 
 @Composable
@@ -45,11 +52,13 @@ fun MainActivity(navController: NavHostController,
                     }
                 },
                 onRestoreSavedTimerFlow = {
-                    val chipIndexFromPref = viewModel.getPref(activity, PrefParamName.CurrentChip.name)
-                    val cycleIndexFromPref = viewModel.getPref(activity, PrefParamName.CurrentCycle.name)
-                    val secondsRemainingFromPref = viewModel.getPref(activity, PrefParamName.SecondsRemaining.name)
+                    val chipIndexFromPref = PrefsUtils.getPref(activity, PrefParamName.CurrentChip.name)
+                    val cycleIndexFromPref = PrefsUtils.getPref(activity, PrefParamName.CurrentCycle.name)
+                    val secondsRemainingFromPref = PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)
+
                     if(chipIndexFromPref != null && cycleIndexFromPref != null && secondsRemainingFromPref != null) {
-                        navController.navigate(Section.Timer.withArgs(
+                        navController.navigate(
+                            Section.Timer.withArgs(
                             optionalArgs = mapOf(
                                 Pair(OptionalParams.ChipIndex.name, chipIndexFromPref),
                                 Pair(OptionalParams.CycleIndex.name, cycleIndexFromPref),
@@ -58,9 +67,9 @@ fun MainActivity(navController: NavHostController,
                         )){
                             launchSingleTop = true
                         }
-                        viewModel.setPref(activity, PrefParamName.CurrentChip.name, null)
-                        viewModel.setPref(activity, PrefParamName.CurrentCycle.name, null)
-                        viewModel.setPref(activity, PrefParamName.SecondsRemaining.name, null)
+                        PrefsUtils.setPref(activity, PrefParamName.CurrentChip.name, null)
+                        PrefsUtils.setPref(activity, PrefParamName.CurrentCycle.name, null)
+                        PrefsUtils.setPref(activity, PrefParamName.SecondsRemaining.name, null)
                     }
                 }
             )
@@ -73,7 +82,7 @@ fun MainActivity(navController: NavHostController,
             tag?.let { tagNotNull ->
                 val chip = viewModel.getData(activity)[tagNotNull]
                 EditView(chip, onConfirmClicked = { type, newValue ->
-                    viewModel.setPref(activity, type.valuePrefKey, newValue)
+                    PrefsUtils.setPref(activity, type.valuePrefKey, newValue)
                     navController.popBackStack()
                 })
             }
@@ -103,27 +112,28 @@ fun MainActivity(navController: NavHostController,
                 onTimerPausedOrStopped = { chipType, currentCycle, secondsRemaining ->
 
                     //Save the current chip index
-                    viewModel.setPref(
-                        activity = activity,
+                    PrefsUtils.setPref(
+                        context = activity,
                         pref = PrefParamName.CurrentChip.name,
                         newValue = chipType.tag.toString()
                     )
 
                     //Save the current cycle
-                    viewModel.setPref(
-                        activity = activity,
+                    PrefsUtils.setPref(
+                        context = activity,
                         pref = PrefParamName.CurrentCycle.name,
                         newValue = currentCycle?.toString()
                     )
 
                     //Save the timer seconds remaining
-                    viewModel.setPref(
-                        activity = activity,
+                    PrefsUtils.setPref(
+                        context = activity,
                         pref = PrefParamName.SecondsRemaining.name,
                         newValue = secondsRemaining?.toString()
                     )
 
-                    activity.removeBackgroundAlert()
+                    AlarmUtils.removeBackgroundAlert(activity)
+                    NotificationUtils.removeNotification(activity)
 
                     //timer is finished, vibrate! //TODO: to test
                     if (secondsRemaining == null) {
@@ -148,20 +158,22 @@ fun MainActivity(navController: NavHostController,
 
                     }
                 },
-                onTimerStartedOrResumed = { chipType, secondsRemaming ->
-                    val secondsRemainings =
-                        secondsRemaming ?:
-                        (viewModel.getPref(activity, PrefParamName.SecondsRemaining.name)?.toInt() ?: 0)
+                onTimerStartedOrResumed = { chipType, chipTitle, secondsRemainings ->
+                    val seconds =
+                        secondsRemainings ?:
+                        (PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)?.toInt() ?: 0)
 
                     val millisSince1970 = Calendar.getInstance().timeInMillis
 
-                    activity.setBackgroundAlert(secondsRemainings * 1000L, millisSince1970)
+                    AlarmUtils.setBackgroundAlert(activity, seconds * 1000L, millisSince1970)
+                    NotificationUtils.setNotification(activity, chipTitle, seconds.toLong())
 
-                    secondsRemainings
+                    seconds
                 },
                 onBackToHome = { removeBackgroundAlert ->
                     if (removeBackgroundAlert) {
-                        activity.removeBackgroundAlert()
+                        AlarmUtils.removeBackgroundAlert(activity)
+                        NotificationUtils.removeNotification(activity)
                     }
 
                     navController.navigate(Section.Setup.baseRoute) {

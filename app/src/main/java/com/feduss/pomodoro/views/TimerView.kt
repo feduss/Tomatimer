@@ -22,9 +22,11 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.ButtonDefaults
+import com.feduss.pomodoro.enums.ChipType
+import com.feduss.pomodoro.models.Chip
+import com.feduss.pomodoro.models.ChipListProvider
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
@@ -32,7 +34,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               initialCycle: Int = 0,
               initialTimerSeconds: Int = 0,
               onTimerPausedOrStopped: (ChipType, Int?, Int?) -> Unit = { _, _, _ ->},
-              onTimerStartedOrResumed: (ChipType, Int?) -> Int = { _, _ -> 0 },
+              onTimerStartedOrResumed: (ChipType, String, Int?) -> Int = { _, _, _ -> 0 },
               onBackToHome: (Boolean) -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
@@ -169,11 +171,12 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //For every new timer (when the chip type changed), set a new background alert
     LaunchedEffect(currentChip.type) {
-        onTimerStartedOrResumed(currentChip.type, maxTimerSeconds)
+        onTimerStartedOrResumed(currentChip.type, currentChip.title, maxTimerSeconds)
     }
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
+            //TODO: title and body are invisible --> TO FIX
             Alert(
                 title = {
                     Text(
@@ -302,7 +305,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         } else {
                             //Set the background alert with the seconds remaining saved in shared prefs (null input)
-                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, null)
+                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, currentChip.title, null)
                         }
 
                         isTimerActive = !isTimerActive

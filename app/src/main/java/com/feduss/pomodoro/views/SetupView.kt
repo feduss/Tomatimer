@@ -19,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
+import com.feduss.pomodoro.models.Chip
+import com.feduss.pomodoro.models.ChipListProvider
 
 @Preview
 @Composable

@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.pomodoro.enums
 
 sealed class OptionalParams(val name: String) {
     object Unit: OptionalParams(name = "unit")

@@ -1,6 +1,7 @@
-package com.feduss.pomodoro
+package com.feduss.pomodoro.models
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.feduss.pomodoro.enums.ChipType
 
 class Chip(val title: String, var value: String, val unit: String = "", val type: ChipType) {
 

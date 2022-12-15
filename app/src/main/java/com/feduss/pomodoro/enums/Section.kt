@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.pomodoro.enums
 
 sealed class Section(val baseRoute: String, val parametricRoute: String = "") {
     object Setup: Section("setup")

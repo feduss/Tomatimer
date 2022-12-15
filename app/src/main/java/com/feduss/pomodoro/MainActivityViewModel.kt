@@ -2,9 +2,10 @@ package com.feduss.pomodoro
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
+import com.feduss.pomodoro.enums.ChipType
+import com.feduss.pomodoro.models.Chip
+import com.feduss.pomodoro.utils.PrefsUtils
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private var chips = listOf(
@@ -17,23 +18,11 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
 
     fun getData(activity: Activity): List<Chip> {
         for(chip in chips) {
-            val loadedValue = getPref(activity, chip.type.valuePrefKey)
+            val loadedValue = PrefsUtils.getPref(activity, chip.type.valuePrefKey)
             if (!loadedValue.isNullOrEmpty()) {
                 chip.value = loadedValue
             }
         }
         return chips
-    }
-
-    private fun getSharedPreferences(activity: Activity): SharedPreferences {
-        return activity.getPreferences(Context.MODE_PRIVATE)
-    }
-
-    fun getPref(activity: Activity, pref: String): String? {
-        return getSharedPreferences(activity).getString(pref, null)
-    }
-
-    fun setPref(activity: Activity, pref: String, newValue: String?) {
-        getSharedPreferences(activity).edit().putString(pref, newValue).apply()
     }
 }

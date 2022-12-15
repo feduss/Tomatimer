@@ -19,6 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
+import com.feduss.pomodoro.enums.ChipType
+import com.feduss.pomodoro.enums.ValueType
+import com.feduss.pomodoro.models.Chip
+import com.feduss.pomodoro.models.ChipProvider
 
 private const val maxTimerValue = 60
 private const val minTimerValue = 0
@@ -26,7 +30,7 @@ private const val minTimerValue = 0
 @Preview
 @Composable
 fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro", "25", "min", ChipType.Tomato),
-             type: ValueType = ValueType.Time, onConfirmClicked: (ChipType, String) -> Unit = {_, _ ->}) {
+             type: ValueType = ValueType.Time, onConfirmClicked: (ChipType, String) -> Unit = { _, _ ->}) {
     var newValue by remember {
         mutableStateOf(chip.value.toInt())
     }
