@@ -34,7 +34,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               initialCycle: Int = 0,
               initialTimerSeconds: Int = 0,
               onTimerPausedOrStopped: (ChipType, Int?, Int?) -> Unit = { _, _, _ ->},
-              onTimerStartedOrResumed: (ChipType, String, Int?) -> Int = { _, _, _ -> 0 },
+              onTimerStartedOrResumed: (ChipType, String, Int, Int, Int?) -> Int = { _, _, _, _, _ -> 0 },
               onBackToHome: (Boolean) -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
@@ -171,7 +171,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //For every new timer (when the chip type changed), set a new background alert
     LaunchedEffect(currentChip.type) {
-        onTimerStartedOrResumed(currentChip.type, currentChip.title, maxTimerSeconds)
+        onTimerStartedOrResumed(currentChip.type, currentChip.title, currentChipIndex, currentCycle, maxTimerSeconds)
     }
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
@@ -305,7 +305,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         } else {
                             //Set the background alert with the seconds remaining saved in shared prefs (null input)
-                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, currentChip.title, null)
+                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, currentChip.title, currentChipIndex, currentCycle, null)
                         }
 
                         isTimerActive = !isTimerActive

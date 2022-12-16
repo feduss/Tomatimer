@@ -54,7 +54,14 @@ fun MainActivity(navController: NavHostController,
                 onRestoreSavedTimerFlow = {
                     val chipIndexFromPref = PrefsUtils.getPref(activity, PrefParamName.CurrentChip.name)
                     val cycleIndexFromPref = PrefsUtils.getPref(activity, PrefParamName.CurrentCycle.name)
-                    val secondsRemainingFromPref = PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)
+                    var secondsRemainingFromPref = PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)
+
+                    //If secondsRemainingFromPref == null == timer is not paused
+                    //Then try to restore this seconds from the background alarm, if set
+                    if (secondsRemainingFromPref == null && chipIndexFromPref != null && cycleIndexFromPref != null) {
+                        secondsRemainingFromPref =
+                            getSecondsFromAlarmTime(activity, secondsRemainingFromPref)
+                    }
 
                     if(chipIndexFromPref != null && cycleIndexFromPref != null && secondsRemainingFromPref != null) {
                         navController.navigate(
@@ -158,14 +165,14 @@ fun MainActivity(navController: NavHostController,
 
                     }
                 },
-                onTimerStartedOrResumed = { chipType, chipTitle, secondsRemainings ->
+                onTimerStartedOrResumed = { chipType, chipTitle, currentChip, currentCycle, secondsRemainings ->
                     val seconds =
                         secondsRemainings ?:
                         (PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)?.toInt() ?: 0)
 
                     val millisSince1970 = Calendar.getInstance().timeInMillis
 
-                    AlarmUtils.setBackgroundAlert(activity, seconds * 1000L, millisSince1970)
+                    AlarmUtils.setBackgroundAlert(activity, currentChip, currentCycle, seconds * 1000L, millisSince1970)
                     NotificationUtils.setNotification(activity, chipTitle, seconds.toLong())
 
                     seconds
@@ -183,4 +190,17 @@ fun MainActivity(navController: NavHostController,
             )
         }
     }
+}
+
+@Composable
+private fun getSecondsFromAlarmTime(
+    activity: MainActivityViewController,
+    secondsRemainingFromPref: String?
+): String? {
+    var secondsRemainingFromPref1 = secondsRemainingFromPref
+    val alarmSetTime = PrefsUtils.getPref(activity, PrefParamName.AlarmSetTime.name)?.toLong() ?: 0L
+    val nowSeconds = Calendar.getInstance().timeInMillis / 1000L
+
+    secondsRemainingFromPref1 = (alarmSetTime - nowSeconds).toString()
+    return secondsRemainingFromPref1
 }
