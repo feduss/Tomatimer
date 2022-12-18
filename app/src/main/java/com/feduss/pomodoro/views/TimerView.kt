@@ -176,12 +176,12 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
-            //TODO: title and body are invisible --> TO FIX
             Alert(
                 title = {
                     Text(
-                        text = "Attenzione",
-                        textAlign = TextAlign.Center
+                        text = "Vuoi terminare il timer?",
+                        textAlign = TextAlign.Center,
+                        color = Color.White
                     )
                 },
                 verticalArrangement = Arrangement.Center,
@@ -242,12 +242,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                         }
                     )
                 }
-            ){
-                Text(
-                    text = "Vuoi terminare il timer?",
-                    textAlign = TextAlign.Center
-                )
-            }
+            )
 
         }
         else {
@@ -270,7 +265,6 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    /*modifier = Modifier.weight(1f),*/
                     text = value,
                     color = Color("#E3BAFF".toColorInt()),
                     textAlign = TextAlign.Center

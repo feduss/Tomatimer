@@ -1,11 +1,5 @@
 package com.feduss.pomodoro
 
-import android.content.Context
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,6 +16,7 @@ import com.feduss.pomodoro.enums.Section
 import com.feduss.pomodoro.utils.AlarmUtils
 import com.feduss.pomodoro.utils.NotificationUtils
 import com.feduss.pomodoro.utils.PrefsUtils
+import com.feduss.pomodoro.views.EditView
 import java.util.Calendar
 
 @Composable
@@ -48,6 +43,7 @@ fun MainActivity(navController: NavHostController,
                 },
                 onPlayIconClicked = {
                     navController.navigate(Section.Timer.baseRoute) {
+                        popUpTo(0)
                         launchSingleTop = true
                     }
                 },
@@ -72,6 +68,7 @@ fun MainActivity(navController: NavHostController,
                                 Pair(OptionalParams.TimerSeconds.name, secondsRemainingFromPref)
                             )
                         )){
+                            popUpTo(0)
                             launchSingleTop = true
                         }
                         PrefsUtils.setPref(activity, PrefParamName.CurrentChip.name, null)
@@ -141,38 +138,15 @@ fun MainActivity(navController: NavHostController,
 
                     AlarmUtils.removeBackgroundAlert(activity)
                     NotificationUtils.removeNotification(activity)
-
-                    //timer is finished, vibrate! //TODO: to test
-                    if (secondsRemaining == null) {
-                        Log.e("VIBRATION:", " OK")
-                        val vibrationPattern = longArrayOf(0, 500, 50, 300)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            val vibratorService = activity.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                            vibratorService.defaultVibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
-                        } else {
-                            val vibrator = activity.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                            if (vibrator.hasVibrator()) {
-
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
-                                } else {
-                                    //deprecated in API 26
-                                    vibrator.vibrate(vibrationPattern, -1)
-                                }
-                            }
-                        }
-
-
-                    }
                 },
                 onTimerStartedOrResumed = { chipType, chipTitle, currentChip, currentCycle, secondsRemainings ->
                     val seconds =
                         secondsRemainings ?:
                         (PrefsUtils.getPref(activity, PrefParamName.SecondsRemaining.name)?.toInt() ?: 0)
 
-                    val millisSince1970 = Calendar.getInstance().timeInMillis
+                    val millisSince1970 = System.currentTimeMillis()
 
-                    AlarmUtils.setBackgroundAlert(activity, currentChip, currentCycle, seconds * 1000L, millisSince1970)
+                    AlarmUtils.setBackgroundAlert(activity, chipTitle, currentChip, currentCycle, seconds * 1000L, millisSince1970)
                     NotificationUtils.setNotification(activity, chipTitle, seconds.toLong())
 
                     seconds
@@ -184,6 +158,7 @@ fun MainActivity(navController: NavHostController,
                     }
 
                     navController.navigate(Section.Setup.baseRoute) {
+                        popUpTo(0)
                         launchSingleTop = true
                     }
                 }
@@ -192,7 +167,6 @@ fun MainActivity(navController: NavHostController,
     }
 }
 
-@Composable
 private fun getSecondsFromAlarmTime(
     activity: MainActivityViewController,
     secondsRemainingFromPref: String?

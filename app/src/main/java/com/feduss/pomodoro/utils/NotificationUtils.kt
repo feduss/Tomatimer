@@ -24,28 +24,27 @@ class NotificationUtils {
 
             val appIntent = Intent(context, MainActivityViewController::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 1, appIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
 
             val runStartTime = SystemClock.elapsedRealtime() + TimeUnit.SECONDS.toMillis(timerSecondsRemaining)
 
             //The creation of notification channel is mandatory since Api 26 (Oreo)
             val channel = NotificationChannel(
-                Consts.ChannelId.value,
-                Consts.NotificationVisibleChannel.value,
+                Consts.MainChannelId.value,
+                Consts.MainNotificationVisibleChannel.value,
                 NotificationManager.IMPORTANCE_DEFAULT
             )
             notificationManager.createNotificationChannel(channel);
 
             val notificationBuilder = NotificationCompat.Builder(
                 context,
-                Consts.ChannelId.value
+                Consts.MainChannelId.value
             )
             .setContentTitle(timerName)
-            .setContentText("TODO")
             .setSmallIcon(R.drawable.ic_timer_24dp_test)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setOngoing(true)
-            //.setContentIntent()
 
             val ongoingActivityStatus = Status.Builder()
                 // Sets the text used across various surfaces.
@@ -57,7 +56,7 @@ class NotificationUtils {
             val ongoingActivity =
                 OngoingActivity.Builder(
                     context.applicationContext,
-                    Consts.NotificationId.value.toInt(),
+                    Consts.MainNotificationId.value.toInt(),
                     notificationBuilder
                 )
                     .setStaticIcon(R.drawable.ic_timer_24dp_test)
@@ -68,14 +67,14 @@ class NotificationUtils {
             ongoingActivity.apply(context.applicationContext)
 
             notificationManager.notify(
-                Consts.NotificationId.value.toInt(),
+                Consts.MainNotificationId.value.toInt(),
                 notificationBuilder.build()
             )
         }
 
         fun removeNotification(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(Consts.NotificationId.value.toInt())
+            notificationManager.cancel(Consts.MainNotificationId.value.toInt())
         }
     }
 }

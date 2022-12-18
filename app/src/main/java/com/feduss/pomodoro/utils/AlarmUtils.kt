@@ -12,20 +12,23 @@ class AlarmUtils {
 
     companion object {
 
-        fun setBackgroundAlert(context: Context, currentChipIndex: Int, currentCycle: Int, timerMillisRemaining: Long, millisSince1970: Long) {
+        fun setBackgroundAlert(context: Context, chipTitle: String, currentChipIndex: Int, currentCycle: Int, timerMillisRemaining: Long, millisSince1970: Long) {
+            removeBackgroundAlert(context)
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val broadcastReceiverIntent = Intent(context, TimerReceiver::class.java)
+            broadcastReceiverIntent.putExtra(Consts.TimerTitle.value, chipTitle)
 
-            //Intent called when the timer started
+            //Intent called when the timer ended
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
                 Consts.AlarmEnd.value.toInt(),
                 broadcastReceiverIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
             )
 
+
             val alarmTime = timerMillisRemaining + millisSince1970
-            alarmManager.setExact(
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 alarmTime,
                 pendingIntent
