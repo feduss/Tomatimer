@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.tomato
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -9,14 +9,14 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
-import com.feduss.pomodoro.enums.OptionalParams
-import com.feduss.pomodoro.enums.Params
-import com.feduss.pomodoro.enums.PrefParamName
-import com.feduss.pomodoro.enums.Section
-import com.feduss.pomodoro.utils.AlarmUtils
-import com.feduss.pomodoro.utils.NotificationUtils
-import com.feduss.pomodoro.utils.PrefsUtils
-import com.feduss.pomodoro.views.EditView
+import com.feduss.tomato.enums.OptionalParams
+import com.feduss.tomato.enums.Params
+import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.enums.Section
+import com.feduss.tomato.utils.AlarmUtils
+import com.feduss.tomato.utils.NotificationUtils
+import com.feduss.tomato.utils.PrefsUtils
+import com.feduss.tomato.views.EditView
 import java.util.Calendar
 
 @Composable

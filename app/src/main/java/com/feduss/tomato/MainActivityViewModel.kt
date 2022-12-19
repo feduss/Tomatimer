@@ -1,11 +1,11 @@
-package com.feduss.pomodoro
+package com.feduss.tomato
 
 import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import com.feduss.pomodoro.enums.ChipType
-import com.feduss.pomodoro.models.Chip
-import com.feduss.pomodoro.utils.PrefsUtils
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.utils.PrefsUtils
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private var chips = listOf(

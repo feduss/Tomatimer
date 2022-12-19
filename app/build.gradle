@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.feduss.pomodoro'
+    namespace 'com.feduss.tomato'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.feduss.pomodoro"
+        applicationId 'com.feduss.tomato'
         minSdk 30
         targetSdk 33
         versionCode 1

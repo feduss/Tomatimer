@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.tomato
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -19,8 +19,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
-import com.feduss.pomodoro.models.Chip
-import com.feduss.pomodoro.models.ChipListProvider
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipListProvider
+import com.feduss.tomato.views.ChipView
 
 @Preview
 @Composable

@@ -1,4 +1,4 @@
-package com.feduss.pomodoro.views
+package com.feduss.tomato.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -20,11 +20,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.*
-import com.feduss.pomodoro.R
-import com.feduss.pomodoro.enums.ChipType
-import com.feduss.pomodoro.enums.ValueType
-import com.feduss.pomodoro.models.Chip
-import com.feduss.pomodoro.models.ChipProvider
+import com.feduss.tomato.R
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.enums.ValueType
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipProvider
 import kotlinx.coroutines.launch
 
 private const val maxTimerValue = 60
@@ -48,7 +48,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
 
     val items: List<Int> = (1..numbOptions + 1).toList()
 
-    val initOption = chip.value.toInt()
+    val initOption = chip.value.toInt() - 1
 
     val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
@@ -122,7 +122,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                 )
             },
             onClick = {
-                onConfirmClicked(chip.type, state.selectedOption.toString())
+                onConfirmClicked(chip.type, (state.selectedOption + 1).toString())
             }
         )
     }
