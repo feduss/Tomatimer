@@ -1,4 +1,4 @@
-package com.feduss.pomodoro.utils
+package com.feduss.tomato.utils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,10 +9,10 @@ import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.wear.ongoing.OngoingActivity
 import androidx.wear.ongoing.Status
-import com.feduss.pomodoro.MainActivityViewController
-import com.feduss.pomodoro.enums.Consts
+import com.feduss.tomato.MainActivityViewController
+import com.feduss.tomato.enums.Consts
 import java.util.concurrent.TimeUnit
-import com.feduss.pomodoro.R
+import com.feduss.tomato.R
 
 
 class NotificationUtils {

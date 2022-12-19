@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.tomato
 
 import android.os.CountDownTimer
 import androidx.activity.compose.BackHandler
@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -22,9 +21,9 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.ButtonDefaults
-import com.feduss.pomodoro.enums.ChipType
-import com.feduss.pomodoro.models.Chip
-import com.feduss.pomodoro.models.ChipListProvider
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipListProvider
 
 
 @Preview

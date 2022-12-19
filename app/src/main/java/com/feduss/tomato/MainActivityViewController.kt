@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.tomato
 
 import android.annotation.SuppressLint
 import android.content.IntentFilter
@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.feduss.pomodoro.receivers.TimerReceiver
+import com.feduss.tomato.receivers.TimerReceiver
 
 
 class MainActivityViewController : ComponentActivity() {

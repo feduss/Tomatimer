@@ -1,4 +1,4 @@
-package com.feduss.pomodoro.utils
+package com.feduss.tomato.utils
 
 import android.content.Context
 import android.content.SharedPreferences

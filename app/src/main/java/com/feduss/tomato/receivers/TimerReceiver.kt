@@ -1,4 +1,4 @@
-package com.feduss.pomodoro.receivers
+package com.feduss.tomato.receivers
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,9 +11,9 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.app.NotificationCompat
-import com.feduss.pomodoro.MainActivityViewController
-import com.feduss.pomodoro.R
-import com.feduss.pomodoro.enums.Consts
+import com.feduss.tomato.MainActivityViewController
+import com.feduss.tomato.R
+import com.feduss.tomato.enums.Consts
 
 class TimerReceiver : BroadcastReceiver() {
 

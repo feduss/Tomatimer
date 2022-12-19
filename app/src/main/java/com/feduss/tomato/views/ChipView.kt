@@ -1,4 +1,4 @@
-package com.feduss.pomodoro
+package com.feduss.tomato.views
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -17,8 +17,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
-import com.feduss.pomodoro.models.Chip
-import com.feduss.pomodoro.models.ChipProvider
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipProvider
 
 @OptIn(ExperimentalUnitApi::class)
 @Preview
