@@ -2,6 +2,7 @@ package com.feduss.tomato
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.models.Chip
@@ -16,9 +17,9 @@ class MainActivityViewModel(application: Application) : AndroidViewModel(applica
     )
 
 
-    fun getData(activity: Activity): List<Chip> {
+    fun getData(context: Context): List<Chip> {
         for(chip in chips) {
-            val loadedValue = PrefsUtils.getPref(activity, chip.type.valuePrefKey)
+            val loadedValue = PrefsUtils.getPref(context, chip.type.valuePrefKey)
             if (!loadedValue.isNullOrEmpty()) {
                 chip.value = loadedValue
             }

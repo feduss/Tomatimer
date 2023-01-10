@@ -12,8 +12,15 @@ class AlarmUtils {
 
     companion object {
 
-        fun setBackgroundAlert(context: Context, chipTitle: String, currentChipIndex: Int, currentCycle: Int, timerMillisRemaining: Long, millisSince1970: Long) {
+        fun setBackgroundAlert(context: Context) {
             removeBackgroundAlert(context)
+
+            val chipTitle = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "Error"
+            //val currentChipIndex = PrefsUtils.getPref(context, PrefParamName.CurrentTimerIndex.name)?.toInt() ?: -1
+            //val currentCycle = PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
+            val secondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
+            val millisSince1970 = System.currentTimeMillis()
+
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val broadcastReceiverIntent = Intent(context, TimerReceiver::class.java)
             broadcastReceiverIntent.putExtra(Consts.TimerTitle.value, chipTitle)
@@ -23,19 +30,19 @@ class AlarmUtils {
                 context,
                 Consts.AlarmEnd.value.toInt(),
                 broadcastReceiverIntent,
-                PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
 
-            val alarmTime = timerMillisRemaining + millisSince1970
+            val alarmTime = (secondsRemaining * 1000L) + millisSince1970
             alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 alarmTime,
                 pendingIntent
             )
 
-            PrefsUtils.setPref(context, PrefParamName.CurrentChip.name, currentChipIndex.toString())
-            PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, currentCycle.toString())
+            //PrefsUtils.setPref(context, PrefParamName.CurrentTimerIndex.name, currentChipIndex.toString())
+            //PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, currentCycle.toString())
             PrefsUtils.setPref(context, PrefParamName.AlarmSetTime.name, (alarmTime/1000).toString())
         }
 
@@ -43,16 +50,13 @@ class AlarmUtils {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val broadcastReceiverIntent = Intent(context, TimerReceiver::class.java)
 
-            //Intent called when the timer expired
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                Consts.AlarmEnd.value.toInt(),
                 broadcastReceiverIntent,
-                0
+                PendingIntent.FLAG_IMMUTABLE
             )
             alarmManager.cancel(pendingIntent)
-            PrefsUtils.setPref(context, PrefParamName.CurrentChip.name, null)
-            PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, null)
             PrefsUtils.setPref(context, PrefParamName.AlarmSetTime.name, null)
         }
     }

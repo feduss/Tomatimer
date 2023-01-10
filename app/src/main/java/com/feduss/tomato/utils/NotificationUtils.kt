@@ -13,13 +13,18 @@ import com.feduss.tomato.MainActivityViewController
 import com.feduss.tomato.enums.Consts
 import java.util.concurrent.TimeUnit
 import com.feduss.tomato.R
+import com.feduss.tomato.enums.PrefParamName
 
 
 class NotificationUtils {
 
     companion object {
 
-        fun setNotification(context: Context, timerName: String, timerSecondsRemaining: Long) {
+        fun setNotification(context: Context) {
+
+            val timerName = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "Error"
+            val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
+
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val appIntent = Intent(context, MainActivityViewController::class.java)

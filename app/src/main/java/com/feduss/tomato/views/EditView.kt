@@ -5,6 +5,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -13,7 +14,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -27,14 +31,14 @@ import com.feduss.tomato.models.Chip
 import com.feduss.tomato.models.ChipProvider
 import kotlinx.coroutines.launch
 
-private const val maxTimerValue = 60
-private const val minTimerValue = 0
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
 fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro", "25", "min", ChipType.Tomato),
              type: ValueType = ValueType.Time, onConfirmClicked: (ChipType, String) -> Unit = { _, _ ->}) {
+
+    val haptic = LocalHapticFeedback.current
 
     val color = Color(("#E3BAFF".toColorInt()))
 
@@ -60,6 +64,17 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
 
     val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
 
+    //Progress of the rounded progress bar
+    val progress by remember(contentDescription) {
+        mutableStateOf((state.selectedOption + 1).toDouble() / numbOptions)
+    }
+
+    CircularProgressIndicator(
+        progress = progress.toFloat(),
+        modifier = Modifier.fillMaxSize(),
+        color = color,
+        strokeWidth = 8.dp
+    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,7 +83,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = chip.title,
-            color = Color(("#E3BAFF".toColorInt()))
+            color = color
         )
 
         Picker(
@@ -79,9 +94,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                                     text = chip.title,
                                     color = Color.White
                                 )},
-            onSelected = {
-
-            },
+            onSelected = {},
             modifier = Modifier
                 .onRotaryScrollEvent {
                     coroutineScope.launch {
@@ -90,6 +103,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                         } else {
                             state.scrollToOption(state.selectedOption - 1)
                         }
+                        perfomHapticFeedback(haptic)
                     }
                     true
                 }
@@ -131,4 +145,8 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
         focusRequester.requestFocus()
     }
 
+}
+
+fun perfomHapticFeedback(haptic: HapticFeedback) {
+    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 }

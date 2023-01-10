@@ -14,6 +14,8 @@ import androidx.core.app.NotificationCompat
 import com.feduss.tomato.MainActivityViewController
 import com.feduss.tomato.R
 import com.feduss.tomato.enums.Consts
+import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.utils.PrefsUtils
 
 class TimerReceiver : BroadcastReceiver() {
 
@@ -60,8 +62,5 @@ class TimerReceiver : BroadcastReceiver() {
             Consts.SubNotificationId.value.toInt(),
             notificationBuilder.build()
         )
-
-
-
     }
 }

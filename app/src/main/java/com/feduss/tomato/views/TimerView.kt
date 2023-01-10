@@ -1,4 +1,4 @@
-package com.feduss.tomato
+package com.feduss.tomato.views
 
 import android.os.CountDownTimer
 import androidx.activity.compose.BackHandler
@@ -21,6 +21,7 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.ButtonDefaults
+import com.feduss.tomato.R
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.models.Chip
 import com.feduss.tomato.models.ChipListProvider
@@ -32,9 +33,10 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               initialChipIndex: Int = 0,
               initialCycle: Int = 0,
               initialTimerSeconds: Int = 0,
-              onTimerPausedOrStopped: (ChipType, Int?, Int?) -> Unit = { _, _, _ ->},
-              onTimerStartedOrResumed: (ChipType, String, Int, Int, Int?) -> Int = { _, _, _, _, _ -> 0 },
-              onBackToHome: (Boolean) -> Unit = {}) {
+              onSaveCurrentTimerData: (ChipType, String?, Int?, Int?) -> Unit = { _, _, _, _ ->},
+              onLoadTimerSecondsRemainings: () -> Int = { 0 },
+              onSetTimerState: (Boolean) -> Unit = {},
+              onBackToHome: () -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
     val activeColor = Color("#649e5d".toColorInt())
@@ -126,10 +128,16 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
 
                 progress = (1f - (1f - currentTimerSecondsRemaining.toFloat().div(chipTimerSeconds))).toDouble()
+
+                onSaveCurrentTimerData(
+                    currentChip.type, //chipType
+                    currentChip.title, //timerTitle
+                    currentCycle, //currentCycle
+                    currentTimerSecondsRemaining //secondsRemaining
+                )
             }
 
             override fun onFinish() {
-                onTimerPausedOrStopped(currentChip.type, null, null)
 
                 when (currentChip.type) {
                     ChipType.Tomato -> {
@@ -145,8 +153,13 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                     }
                     ChipType.LongBreak -> {
                         cancel()
-                        val removeBackgroundAlert = false
-                        onBackToHome(removeBackgroundAlert)
+                        onSaveCurrentTimerData(
+                            currentChip.type, //chipType
+                            null, //timerTitle
+                            null, //currentCycle
+                            null //secondsRemaining
+                        )
+                        onBackToHome()
                     }
                     else -> {}
                 }
@@ -157,6 +170,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Conditional timer auto-start/pause (change of timer type or timer state)
     LaunchedEffect(currentChip.type, isTimerActive) {
+        onSetTimerState(isTimerActive)
         if (isTimerActive) {
             timer.start()
         } else {
@@ -168,13 +182,9 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         isAlertDialogVisible = true
     }
 
-    //For every new timer (when the chip type changed), set a new background alert
-    LaunchedEffect(currentChip.type) {
-        onTimerStartedOrResumed(currentChip.type, currentChip.title, currentChipIndex, currentCycle, maxTimerSeconds)
-    }
-
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
+            isTimerActive = false
             Alert(
                 title = {
                     Text(
@@ -205,7 +215,9 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         },
                         onClick = {
+                            maxTimerSeconds = onLoadTimerSecondsRemainings()
                             isAlertDialogVisible = false
+                            isTimerActive = true
                         }
                     )
                 },
@@ -230,14 +242,13 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         },
                         onClick = {
-                            if (isTimerActive) {
-                                val removeBackgroundAlert = true
-                                onBackToHome(removeBackgroundAlert)
-                            } else {
-                                val removeBackgroundAlert = false
-                                onTimerPausedOrStopped(currentChip.type, null, null)
-                                onBackToHome(removeBackgroundAlert)
-                            }
+                            onSaveCurrentTimerData(
+                                currentChip.type, //chipType
+                                null, //timerTitle
+                                null, //currentCycle
+                                null //secondsRemaining
+                            )
+                            onBackToHome()
                         }
                     )
                 }
@@ -289,19 +300,13 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                         iconImage = if (isTimerActive) playIcon else pauseIcon
                         sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                        if (isTimerActive) {
-                            //Cancel the background alert and save the seconds remaining
-                            onTimerPausedOrStopped(
-                                currentChip.type,
-                                currentCycle,
-                                currentTimerSecondsRemaining
-                            )
-                        } else {
-                            //Set the background alert with the seconds remaining saved in shared prefs (null input)
-                            maxTimerSeconds = onTimerStartedOrResumed(currentChip.type, currentChip.title, currentChipIndex, currentCycle, null)
+                        if (!isTimerActive) {
+                            //Restore the paused timer with the remaining seconds
+                            maxTimerSeconds = onLoadTimerSecondsRemainings()
                         }
 
                         isTimerActive = !isTimerActive
+                        onSetTimerState(isTimerActive)
                     }
                 )
             }
