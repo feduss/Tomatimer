@@ -15,6 +15,9 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.ExperimentalUnitApi
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.CompactButton
@@ -27,6 +30,7 @@ import com.feduss.tomato.models.Chip
 import com.feduss.tomato.models.ChipListProvider
 
 
+@OptIn(ExperimentalUnitApi::class)
 @Preview
 @Composable
 fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
@@ -269,11 +273,23 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = title,
-                    color = Color("#E3BAFF".toColorInt()),
-                    textAlign = TextAlign.Center
-                )
+                Column(
+                    modifier = Modifier
+                    .padding(4.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally){
+                    Text(
+                        text = title,
+                        color = Color("#E3BAFF".toColorInt()),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "Ciclo ${currentCycle + 1}/${totalCycles}",
+                        color = Color("#E3BAFF".toColorInt()),
+                        textAlign = TextAlign.Center,
+                        fontSize = TextUnit(10f, TextUnitType.Sp)
+                    )
+                }
                 Text(
                     text = value,
                     color = Color("#E3BAFF".toColorInt()),

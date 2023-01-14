@@ -118,6 +118,13 @@ fun MainActivity(navController: NavHostController,
                 chips = viewModel.getData(context),
                 onSaveCurrentTimerData = { chipType, currentTimerName, currentCycle, secondsRemaining ->
 
+                    //Save the current chip type
+                    PrefsUtils.setPref(
+                        context = context,
+                        pref = PrefParamName.CurrentChipType.name,
+                        newValue = chipType.stringValue
+                    )
+
                     //Save the current chip index
                     PrefsUtils.setPref(
                         context = context,

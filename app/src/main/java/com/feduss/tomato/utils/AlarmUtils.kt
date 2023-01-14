@@ -15,15 +15,11 @@ class AlarmUtils {
         fun setBackgroundAlert(context: Context) {
             removeBackgroundAlert(context)
 
-            val chipTitle = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "Error"
-            //val currentChipIndex = PrefsUtils.getPref(context, PrefParamName.CurrentTimerIndex.name)?.toInt() ?: -1
-            //val currentCycle = PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
             val secondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
             val millisSince1970 = System.currentTimeMillis()
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val broadcastReceiverIntent = Intent(context, TimerReceiver::class.java)
-            broadcastReceiverIntent.putExtra(Consts.TimerTitle.value, chipTitle)
 
             //Intent called when the timer ended
             val pendingIntent = PendingIntent.getBroadcast(
