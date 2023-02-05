@@ -22,6 +22,7 @@ import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.utils.PrefsUtils
 import java.util.Calendar
+import kotlin.system.exitProcess
 
 @Composable
 fun MainActivity(navController: NavHostController,
@@ -82,7 +83,8 @@ fun MainActivity(navController: NavHostController,
                     }
                 },
                 onCloseApp = {
-                    viewController.finish()
+                    viewController.finishAndRemoveTask()
+                    exitProcess(0)
                 }
             )
         }
