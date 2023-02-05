@@ -1,4 +1,4 @@
-package com.feduss.tomato.utils
+package com.feduss.tomatimer.utils
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,11 +9,11 @@ import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.wear.ongoing.OngoingActivity
 import androidx.wear.ongoing.Status
-import com.feduss.tomato.MainActivityViewController
-import com.feduss.tomato.enums.Consts
+import com.feduss.tomatimer.MainActivityViewController
+import com.feduss.tomatimer.enums.Consts
 import java.util.concurrent.TimeUnit
-import com.feduss.tomato.R
-import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomatimer.R
+import com.feduss.tomatimer.enums.PrefParamName
 
 
 class NotificationUtils {

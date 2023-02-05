@@ -1,4 +1,4 @@
-package com.feduss.tomato.enums
+package com.feduss.tomatimer.enums
 
 sealed class Consts(val value: String) {
     object AlarmEnd: Consts("321")

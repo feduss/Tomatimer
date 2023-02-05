@@ -1,7 +1,7 @@
-package com.feduss.tomato.models
+package com.feduss.tomatimer.models
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.feduss.tomato.enums.ChipType
+import com.feduss.tomatimer.enums.ChipType
 
 class Chip(val title: String, var value: String, val unit: String = "", val type: ChipType) {
 

@@ -1,4 +1,4 @@
-package com.feduss.tomato.enums
+package com.feduss.tomatimer.enums
 
 sealed class OptionalParams(val name: String) {
     object Unit: OptionalParams(name = "unit")

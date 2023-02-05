@@ -1,14 +1,14 @@
-package com.feduss.tomato.receivers
+package com.feduss.tomatimer.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.feduss.tomato.MainActivityViewController
-import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.enums.PrefParamName
-import com.feduss.tomato.utils.NotificationUtils
-import com.feduss.tomato.utils.PrefsUtils
+import com.feduss.tomatimer.MainActivityViewController
+import com.feduss.tomatimer.enums.ChipType
+import com.feduss.tomatimer.enums.PrefParamName
+import com.feduss.tomatimer.utils.NotificationUtils
+import com.feduss.tomatimer.utils.PrefsUtils
 
 class NotificationReceiver: BroadcastReceiver() {
 

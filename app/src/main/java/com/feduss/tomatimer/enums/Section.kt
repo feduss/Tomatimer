@@ -1,4 +1,4 @@
-package com.feduss.tomato.enums
+package com.feduss.tomatimer.enums
 
 sealed class Section(val baseRoute: String, val parametricRoute: String = "") {
     object Setup: Section("setup")

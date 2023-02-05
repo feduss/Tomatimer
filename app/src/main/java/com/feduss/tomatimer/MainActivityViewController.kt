@@ -1,15 +1,10 @@
-package com.feduss.tomato
+package com.feduss.tomatimer
 
 import android.annotation.SuppressLint
-import android.app.KeyguardManager
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -34,14 +29,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.enums.PrefParamName
-import com.feduss.tomato.receivers.NotificationReceiver
-import com.feduss.tomato.receivers.TimerReceiver
-import com.feduss.tomato.utils.AlarmUtils
-import com.feduss.tomato.utils.NotificationUtils
-import com.feduss.tomato.utils.PrefsUtils
-import com.feduss.tomato.views.MainActivity
+import com.feduss.tomatimer.enums.PrefParamName
+import com.feduss.tomatimer.receivers.NotificationReceiver
+import com.feduss.tomatimer.receivers.TimerReceiver
+import com.feduss.tomatimer.utils.AlarmUtils
+import com.feduss.tomatimer.utils.NotificationUtils
+import com.feduss.tomatimer.utils.PrefsUtils
+import com.feduss.tomatimer.views.MainActivity
 
 
 class MainActivityViewController : ComponentActivity() {
@@ -63,17 +57,7 @@ class MainActivityViewController : ComponentActivity() {
         registerReceiver(notificationReceiver, filter)
         context = this
 
-        val isOverlayPermissionGranted = Settings.canDrawOverlays(context)
         val permissionGranted = MutableLiveData(true)
-
-        if (!isOverlayPermissionGranted) {
-            startActivity(
-                Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
-            )
-        }
 
         val requestPermission = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -89,7 +73,7 @@ class MainActivityViewController : ComponentActivity() {
             }
 
             val arePermissionsGranted = permissionGranted.value ?: false
-            permissionGranted.postValue(isOverlayPermissionGranted && arePermissionsGranted)
+            permissionGranted.postValue(arePermissionsGranted)
         }
 
         val array = Array(5) {
@@ -101,7 +85,6 @@ class MainActivityViewController : ComponentActivity() {
             }
             android.Manifest.permission.WAKE_LOCK
             android.Manifest.permission.FOREGROUND_SERVICE
-            android.Manifest.permission.USE_FULL_SCREEN_INTENT
         }
 
         requestPermission.launch(array)

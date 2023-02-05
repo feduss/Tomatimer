@@ -1,12 +1,11 @@
-package com.feduss.tomato
+package com.feduss.tomatimer
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.models.Chip
-import com.feduss.tomato.utils.PrefsUtils
+import com.feduss.tomatimer.enums.ChipType
+import com.feduss.tomatimer.models.Chip
+import com.feduss.tomatimer.utils.PrefsUtils
 
 class MainActivityViewModel(application: Application) : AndroidViewModel(application) {
     private var chips = listOf(

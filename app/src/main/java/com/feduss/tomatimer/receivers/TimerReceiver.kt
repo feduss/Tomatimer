@@ -1,4 +1,4 @@
-package com.feduss.tomato.receivers
+package com.feduss.tomatimer.receivers
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -9,10 +9,10 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import com.feduss.tomato.R
-import com.feduss.tomato.enums.Consts
-import com.feduss.tomato.enums.PrefParamName
-import com.feduss.tomato.utils.PrefsUtils
+import com.feduss.tomatimer.R
+import com.feduss.tomatimer.enums.Consts
+import com.feduss.tomatimer.enums.PrefParamName
+import com.feduss.tomatimer.utils.PrefsUtils
 
 
 class TimerReceiver : BroadcastReceiver() {
