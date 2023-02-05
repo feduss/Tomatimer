@@ -13,6 +13,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
+import com.feduss.tomato.MainActivityViewController
 import com.feduss.tomato.MainActivityViewModel
 import com.feduss.tomato.SetupView
 import com.feduss.tomato.enums.OptionalParams
@@ -25,6 +26,7 @@ import java.util.Calendar
 @Composable
 fun MainActivity(navController: NavHostController,
                  context: Context,
+                 viewController: MainActivityViewController,
                  viewModel: MainActivityViewModel
 ) {
     val startDestination = Section.Setup.baseRoute
@@ -78,6 +80,9 @@ fun MainActivity(navController: NavHostController,
                         PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, null)
                         PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, null)
                     }
+                },
+                onCloseApp = {
+                    viewController.finish()
                 }
             )
         }
@@ -161,6 +166,9 @@ fun MainActivity(navController: NavHostController,
                     PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, stringValue)
                 },
                 onBackToHome = {
+                    PrefsUtils.setPref(context, PrefParamName.CurrentTimerIndex.name, null)
+                    PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, null)
+                    PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, null)
                     navController.popBackStack()
                 }
             )

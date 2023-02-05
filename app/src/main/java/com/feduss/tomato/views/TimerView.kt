@@ -157,12 +157,6 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                     }
                     ChipType.LongBreak -> {
                         cancel()
-                        onSaveCurrentTimerData(
-                            currentChip.type, //chipType
-                            null, //timerTitle
-                            null, //currentCycle
-                            null //secondsRemaining
-                        )
                         onBackToHome()
                     }
                     else -> {}
@@ -183,7 +177,12 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
     }
 
     BackHandler() {
-        isAlertDialogVisible = true
+        isAlertDialogVisible = !isAlertDialogVisible
+
+        if (!isAlertDialogVisible) {
+            maxTimerSeconds = onLoadTimerSecondsRemainings()
+            isTimerActive = true
+        }
     }
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
@@ -246,12 +245,6 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         },
                         onClick = {
-                            onSaveCurrentTimerData(
-                                currentChip.type, //chipType
-                                null, //timerTitle
-                                null, //currentCycle
-                                null //secondsRemaining
-                            )
                             onBackToHome()
                         }
                     )

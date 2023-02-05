@@ -19,7 +19,9 @@ class AlarmUtils {
             val millisSince1970 = System.currentTimeMillis()
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
             val broadcastReceiverIntent = Intent(context, TimerReceiver::class.java)
+            broadcastReceiverIntent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
 
             //Intent called when the timer ended
             val pendingIntent = PendingIntent.getBroadcast(
