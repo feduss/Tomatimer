@@ -134,7 +134,7 @@ class MainActivityViewController : ComponentActivity() {
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
-                                text = "Per continuare, devi accettare il permesso di overlay. Quindi, riavvia l'app.",
+                                text = "Per continuare, devi accettare tutti i permessi. Quindi, chiudi e riavvia l'app.",
                                 color = Color("#E3BAFF".toColorInt()),
                                 textAlign = TextAlign.Center
                             )
