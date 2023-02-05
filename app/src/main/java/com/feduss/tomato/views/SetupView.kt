@@ -1,4 +1,4 @@
-package com.feduss.tomatimer
+package com.feduss.tomato
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -24,9 +24,9 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
-import com.feduss.tomatimer.models.Chip
-import com.feduss.tomatimer.models.ChipListProvider
-import com.feduss.tomatimer.views.ChipView
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipListProvider
+import com.feduss.tomato.views.ChipView
 
 @Preview
 @Composable

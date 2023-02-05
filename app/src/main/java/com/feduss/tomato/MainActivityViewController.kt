@@ -1,4 +1,4 @@
-package com.feduss.tomatimer
+package com.feduss.tomato
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -29,13 +29,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.feduss.tomatimer.enums.PrefParamName
-import com.feduss.tomatimer.receivers.NotificationReceiver
-import com.feduss.tomatimer.receivers.TimerReceiver
-import com.feduss.tomatimer.utils.AlarmUtils
-import com.feduss.tomatimer.utils.NotificationUtils
-import com.feduss.tomatimer.utils.PrefsUtils
-import com.feduss.tomatimer.views.MainActivity
+import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.receivers.NotificationReceiver
+import com.feduss.tomato.receivers.TimerReceiver
+import com.feduss.tomato.utils.AlarmUtils
+import com.feduss.tomato.utils.NotificationUtils
+import com.feduss.tomato.utils.PrefsUtils
+import com.feduss.tomato.views.MainActivity
 
 
 class MainActivityViewController : ComponentActivity() {

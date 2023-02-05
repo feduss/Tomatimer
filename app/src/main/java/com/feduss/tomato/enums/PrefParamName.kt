@@ -1,4 +1,4 @@
-package com.feduss.tomatimer.enums
+package com.feduss.tomato.enums
 
 sealed class PrefParamName(val name: String) {
     object CurrentTimerIndex: PrefParamName("CurrentTimerIndex")

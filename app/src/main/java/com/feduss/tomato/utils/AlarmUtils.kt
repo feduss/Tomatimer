@@ -1,12 +1,12 @@
-package com.feduss.tomatimer.utils
+package com.feduss.tomato.utils
 
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import com.feduss.tomatimer.enums.Consts
-import com.feduss.tomatimer.enums.PrefParamName
-import com.feduss.tomatimer.receivers.TimerReceiver
+import com.feduss.tomato.enums.Consts
+import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.receivers.TimerReceiver
 
 class AlarmUtils {
 

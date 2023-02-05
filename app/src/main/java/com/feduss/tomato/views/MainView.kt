@@ -1,4 +1,4 @@
-package com.feduss.tomatimer.views
+package com.feduss.tomato.views
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -13,14 +13,14 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
-import com.feduss.tomatimer.MainActivityViewController
-import com.feduss.tomatimer.MainActivityViewModel
-import com.feduss.tomatimer.SetupView
-import com.feduss.tomatimer.enums.OptionalParams
-import com.feduss.tomatimer.enums.Params
-import com.feduss.tomatimer.enums.PrefParamName
-import com.feduss.tomatimer.enums.Section
-import com.feduss.tomatimer.utils.PrefsUtils
+import com.feduss.tomato.MainActivityViewController
+import com.feduss.tomato.MainActivityViewModel
+import com.feduss.tomato.SetupView
+import com.feduss.tomato.enums.OptionalParams
+import com.feduss.tomato.enums.Params
+import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.enums.Section
+import com.feduss.tomato.utils.PrefsUtils
 import java.util.Calendar
 
 @Composable

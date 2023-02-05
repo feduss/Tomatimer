@@ -1,4 +1,4 @@
-package com.feduss.tomatimer.enums
+package com.feduss.tomato.enums
 
 sealed class ChipType(val tag: Int, val valuePrefKey: String, val stringValue: String) {
     object Tomato: ChipType(0, "TomatoValue", "Tomato")

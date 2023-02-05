@@ -1,4 +1,4 @@
-package com.feduss.tomatimer.views
+package com.feduss.tomato.views
 
 import android.os.CountDownTimer
 import androidx.activity.compose.BackHandler
@@ -24,10 +24,10 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.ButtonDefaults
-import com.feduss.tomatimer.R
-import com.feduss.tomatimer.enums.ChipType
-import com.feduss.tomatimer.models.Chip
-import com.feduss.tomatimer.models.ChipListProvider
+import com.feduss.tomato.R
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipListProvider
 
 
 @OptIn(ExperimentalUnitApi::class)

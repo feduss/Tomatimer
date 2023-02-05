@@ -1,4 +1,4 @@
-package com.feduss.tomatimer.views
+package com.feduss.tomato.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -24,11 +24,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.*
-import com.feduss.tomatimer.R
-import com.feduss.tomatimer.enums.ChipType
-import com.feduss.tomatimer.enums.ValueType
-import com.feduss.tomatimer.models.Chip
-import com.feduss.tomatimer.models.ChipProvider
+import com.feduss.tomato.R
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.enums.ValueType
+import com.feduss.tomato.models.Chip
+import com.feduss.tomato.models.ChipProvider
 import kotlinx.coroutines.launch
 
 

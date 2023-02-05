@@ -1,10 +1,10 @@
-package com.feduss.tomatimer.utils
+package com.feduss.tomato.utils
 
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import com.feduss.tomatimer.enums.ChipType
-import com.feduss.tomatimer.enums.PrefParamName
+import com.feduss.tomato.enums.ChipType
+import com.feduss.tomato.enums.PrefParamName
 
 class PrefsUtils {
 
