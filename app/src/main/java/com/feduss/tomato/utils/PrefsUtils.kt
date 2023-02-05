@@ -66,5 +66,11 @@ class PrefsUtils {
                 setPref(context, PrefParamName.SecondsRemaining.name, null)
             }
         }
+
+        fun cancelTimer(context: Context) {
+            setPref(context, PrefParamName.CurrentTimerIndex.name, null)
+            setPref(context, PrefParamName.CurrentCycle.name, null)
+            setPref(context, PrefParamName.SecondsRemaining.name, null)
+        }
     }
 }

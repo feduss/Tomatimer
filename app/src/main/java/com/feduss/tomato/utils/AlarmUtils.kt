@@ -4,6 +4,11 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
+import androidx.appcompat.app.AppCompatActivity
 import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.receivers.TimerReceiver
@@ -56,6 +61,25 @@ class AlarmUtils {
             )
             alarmManager.cancel(pendingIntent)
             PrefsUtils.setPref(context, PrefParamName.AlarmSetTime.name, null)
+        }
+
+        fun vibrate(context: Context) {
+            val vibrationPattern = longArrayOf(0, 500, 50, 300)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val vibratorService =
+                    context.getSystemService(AppCompatActivity.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                vibratorService.defaultVibrator.vibrate(
+                    VibrationEffect.createWaveform(
+                        vibrationPattern,
+                        -1
+                    )
+                )
+            } else {
+                val vibrator = context.getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
+                if (vibrator.hasVibrator()) {
+                    vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
+                }
+            }
         }
     }
 }

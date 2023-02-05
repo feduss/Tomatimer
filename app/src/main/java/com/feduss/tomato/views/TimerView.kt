@@ -40,7 +40,8 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
               onSaveCurrentTimerData: (ChipType, String?, Int?, Int?) -> Unit = { _, _, _, _ ->},
               onLoadTimerSecondsRemainings: () -> Int = { 0 },
               onSetTimerState: (Boolean) -> Unit = {},
-              onBackToHome: () -> Unit = {}) {
+              onBackToHome: () -> Unit = {},
+              onTimerExpired: () -> Unit = {}) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
     val activeColor = Color("#649e5d".toColorInt())
@@ -142,25 +143,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
             }
 
             override fun onFinish() {
-
-                when (currentChip.type) {
-                    ChipType.Tomato -> {
-                        if (currentCycle == totalCycles - 1) {
-                            currentChipIndex = ChipType.LongBreak.tag
-                        } else {
-                            currentChipIndex = ChipType.ShortBreak.tag
-                        }
-                    }
-                    ChipType.ShortBreak -> {
-                        currentChipIndex = ChipType.Tomato.tag
-                        currentCycle += 1
-                    }
-                    ChipType.LongBreak -> {
-                        cancel()
-                        onBackToHome()
-                    }
-                    else -> {}
-                }
+                onTimerExpired()
             }
 
         })
@@ -257,7 +240,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                 progress = progress.toFloat(),
                 modifier = Modifier.fillMaxSize(),
                 color = sliderColor,
-                strokeWidth = 16.dp
+                strokeWidth = 8.dp
             )
             Column(
                 modifier = Modifier

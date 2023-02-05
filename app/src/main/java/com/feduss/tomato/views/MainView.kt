@@ -1,6 +1,7 @@
 package com.feduss.tomato.views
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,6 +16,7 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import com.feduss.tomato.MainActivityViewController
 import com.feduss.tomato.MainActivityViewModel
+import com.feduss.tomato.NotificationActivity
 import com.feduss.tomato.SetupView
 import com.feduss.tomato.enums.OptionalParams
 import com.feduss.tomato.enums.Params
@@ -45,14 +47,10 @@ fun MainActivity(navController: NavHostController,
                 chips = chips,
                 onChipClicked = { tag ->
                     val args = listOf(tag)
-                    navController.navigate(Section.Edit.withArgs(args)) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Section.Edit.withArgs(args))
                 },
                 onPlayIconClicked = {
-                    navController.navigate(Section.Timer.baseRoute) {
-                        launchSingleTop = true
-                    }
+                    navController.navigate(Section.Timer.baseRoute)
                 },
                 onRestoreSavedTimerFlow = {
                     val chipIndexFromPref = PrefsUtils.getPref(context, PrefParamName.CurrentTimerIndex.name)
@@ -65,6 +63,11 @@ fun MainActivity(navController: NavHostController,
                         secondsRemainingFromPref =
                             getSecondsFromAlarmTime(context)
                     }
+                    //If secondsRemainingFromPref == 0, the user early return in notification activity
+                    else if (secondsRemainingFromPref.equals("0")) {
+                        secondsRemainingFromPref = null
+                        PrefsUtils.cancelTimer(context)
+                    }
 
                     if(chipIndexFromPref != null && cycleIndexFromPref != null && secondsRemainingFromPref != null) {
                         navController.navigate(
@@ -74,16 +77,12 @@ fun MainActivity(navController: NavHostController,
                                 Pair(OptionalParams.CycleIndex.name, cycleIndexFromPref),
                                 Pair(OptionalParams.TimerSeconds.name, secondsRemainingFromPref)
                             )
-                        )){
-                            launchSingleTop = true
-                        }
-                        PrefsUtils.setPref(context, PrefParamName.CurrentTimerIndex.name, null)
-                        PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, null)
-                        PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, null)
+                        ))
+                        PrefsUtils.cancelTimer(context)
                     }
                 },
                 onCloseApp = {
-                    viewController.finishAndRemoveTask()
+                    viewController.finish()
                     exitProcess(0)
                 }
             )
@@ -168,10 +167,16 @@ fun MainActivity(navController: NavHostController,
                     PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, stringValue)
                 },
                 onBackToHome = {
-                    PrefsUtils.setPref(context, PrefParamName.CurrentTimerIndex.name, null)
-                    PrefsUtils.setPref(context, PrefParamName.CurrentCycle.name, null)
-                    PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, null)
+                    PrefsUtils.cancelTimer(context)
                     navController.popBackStack()
+                },
+                onTimerExpired = {
+                    PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, "false")
+
+                    val notificationIntent = Intent(context, NotificationActivity::class.java)
+                    notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    viewController.startActivity(notificationIntent)
+                    viewController.finish()
                 }
             )
         }

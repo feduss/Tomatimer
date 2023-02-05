@@ -3,6 +3,9 @@
     <style name="Theme.App.Main" parent="@android:style/Theme.DeviceDefault">
     </style>
 
+    <style name="Theme.App.Notification" parent="Theme.AppCompat.NoActionBar">
+    </style>
+
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <!-- Set the splash screen background, animated icon, and animation duration. -->
         <item name="windowSplashScreenBackground">@android:color/black</item>

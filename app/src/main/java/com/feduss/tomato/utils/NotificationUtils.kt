@@ -20,7 +20,7 @@ class NotificationUtils {
 
     companion object {
 
-        fun setNotification(context: Context) {
+        fun setOngoingNotification(context: Context) {
 
             val timerName = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "Error"
             val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
@@ -77,7 +77,7 @@ class NotificationUtils {
             )
         }
 
-        fun removeNotification(context: Context) {
+        fun removeOngoingNotification(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancel(Consts.MainNotificationId.value.toInt())
         }
