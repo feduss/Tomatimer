@@ -8,10 +8,15 @@ import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.receivers.TimerReceiver
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class AlarmUtils {
 
@@ -36,6 +41,15 @@ class AlarmUtils {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
+            val startDateTime: ZonedDateTime = Instant.ofEpochMilli(millisSince1970)
+                .atZone(ZoneId.of("Europe/Rome"))
+            val startTime: LocalTime = startDateTime.toLocalTime()
+
+            val scheduleDateTime: ZonedDateTime = Instant.ofEpochMilli((secondsRemaining * 1000L) + millisSince1970)
+                .atZone(ZoneId.of("Europe/Rome"))
+            val scheduleTime: LocalTime = scheduleDateTime.toLocalTime()
+
+            Log.e("TOMATO", "alarm set at $startTime for $scheduleTime")
 
             val alarmTime = (secondsRemaining * 1000L) + millisSince1970
             alarmManager.setExactAndAllowWhileIdle(

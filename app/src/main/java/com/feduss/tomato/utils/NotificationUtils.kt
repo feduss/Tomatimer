@@ -9,7 +9,7 @@ import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.wear.ongoing.OngoingActivity
 import androidx.wear.ongoing.Status
-import com.feduss.tomato.MainActivityViewController
+import com.feduss.tomato.MainViewController
 import com.feduss.tomato.enums.Consts
 import java.util.concurrent.TimeUnit
 import com.feduss.tomato.R
@@ -27,7 +27,7 @@ class NotificationUtils {
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val appIntent = Intent(context, MainActivityViewController::class.java)
+            val appIntent = Intent(context, MainViewController::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 1, appIntent,
                 PendingIntent.FLAG_IMMUTABLE
             )

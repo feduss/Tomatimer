@@ -1,5 +1,6 @@
 package com.feduss.tomato
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,31 +11,50 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavHostController
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
-import com.feduss.tomato.models.Chip
-import com.feduss.tomato.models.ChipListProvider
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.feduss.tomato.enums.Consts
+import com.feduss.tomato.enums.OptionalParams
+import com.feduss.tomato.enums.Section
+import com.feduss.tomato.provider.ChipDatas
 import com.feduss.tomato.views.ChipView
+import com.feduss.tomato.views.setup.SetupViewModel
 
 @Preview
 @Composable
-fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
-              onChipClicked: (String) -> Unit = {},
-              onPlayIconClicked: () -> Unit = {},
-              onRestoreSavedTimerFlow: () -> Unit = {},
-              onCloseApp: () -> Unit = {}) {
+fun SetupView(context: Context = LocalContext.current,
+              navController: NavHostController = rememberSwipeDismissableNavController(),
+              viewModel: SetupViewModel = SetupViewModel(ChipDatas.demoList),
+              closeApp: () -> Unit = {}) {
+
+    val chips = viewModel.chips.observeAsState()
+
+    //Go to timer screen if there was an active timer
+    restoreSavedTimerFlow(context, viewModel, navController)
+
+    //When the user edit the timer in EditView, the SetupView needs to refresh its datas
+    val updateChipState = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(Consts.NewValueKey.value)?.observeAsState()
+
+    LaunchedEffect(updateChipState) {
+        updateChipState?.value?.let { newValue ->
+            viewModel.updateLastSelectedChip(newValue)
+        }
+    }
 
     var isAlertDialogVisible by remember {
         mutableStateOf(false)
@@ -44,7 +64,6 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         isAlertDialogVisible = !isAlertDialogVisible
     }
 
-    onRestoreSavedTimerFlow()
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
             Alert(
@@ -101,9 +120,7 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                                 tint = Color.Black
                             )
                         },
-                        onClick = {
-                            onCloseApp()
-                        }
+                        onClick = { closeApp() }
                     )
                 }
             )
@@ -111,7 +128,9 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         }
         else {
             Column(
-                Modifier.padding(32.dp, 16.dp, 32.dp, 8.dp).fillMaxHeight(),
+                Modifier
+                    .padding(32.dp, 16.dp, 32.dp, 8.dp)
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -121,13 +140,19 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(chips) { chip ->
-                        ChipView(
-                            chip = chip,
-                            tag = chip.type.tag,
-                            fontSize = 10f,
-                            onChipClicked = onChipClicked
-                        )
+                    chips.value?.let { datas ->
+                        items(datas) { chip ->
+                            ChipView(
+                                chip = chip,
+                                tag = chip.type.tag,
+                                fontSize = 10f,
+                                onChipClicked = { tag ->
+                                    viewModel.userHasSelectedChip(tag.toInt())
+                                    val args = listOf(tag)
+                                    navController.navigate(Section.Edit.withArgs(args))
+                                }
+                            )
+                        }
                     }
                 }
                 val color = Color(("#E3BAFF".toColorInt()))
@@ -148,10 +173,40 @@ fun SetupView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                         )
                     },
                     onClick = {
-                        onPlayIconClicked()
+                        navController.navigate(Section.Timer.baseRoute)
                     }
                 )
             }
         }
+    }
+}
+
+fun restoreSavedTimerFlow(context: Context, viewModel: SetupViewModel, navController: NavHostController) {
+    val chipIndexFromPref = viewModel.getChipIndexFromPref(context)
+    val cycleIndexFromPref = viewModel.getCycleIndexFromPref(context)
+    var secondsRemainingFromPref = viewModel.getSecondsRemainingFromPref(context)
+
+    //If secondsRemainingFromPref == null --> timer was not paused
+    //If yes, try to restore this seconds from the background alarm, if set
+    if (secondsRemainingFromPref == null && chipIndexFromPref != null && cycleIndexFromPref != null) {
+        secondsRemainingFromPref =
+            viewModel.getSecondsFromAlarmTime(context)
+    }
+    //If secondsRemainingFromPref == 0, the user early return in notification activity
+    else if (secondsRemainingFromPref.equals("0")) {
+        secondsRemainingFromPref = null
+        viewModel.cancelTimer(context)
+    }
+
+    if(chipIndexFromPref != null && cycleIndexFromPref != null && secondsRemainingFromPref != null) {
+        navController.navigate(
+            Section.Timer.withArgs(
+                optionalArgs = mapOf(
+                    Pair(OptionalParams.ChipIndex.name, chipIndexFromPref),
+                    Pair(OptionalParams.CycleIndex.name, cycleIndexFromPref),
+                    Pair(OptionalParams.TimerSeconds.name, secondsRemainingFromPref)
+                )
+            ))
+        viewModel.cancelTimer(context)
     }
 }

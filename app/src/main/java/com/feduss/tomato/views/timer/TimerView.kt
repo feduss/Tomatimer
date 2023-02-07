@@ -1,5 +1,6 @@
-package com.feduss.tomato.views
+package com.feduss.tomato.views.timer
 
+import android.content.Context
 import android.os.CountDownTimer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -7,41 +8,41 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavHostController
+import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
-import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.feduss.tomato.R
 import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.models.Chip
-import com.feduss.tomato.models.ChipListProvider
+import com.feduss.tomato.enums.Consts
+import com.feduss.tomato.enums.Section
+import com.feduss.tomato.provider.ChipDatas
 
 
 @OptIn(ExperimentalUnitApi::class)
 @Preview
 @Composable
-fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
-              initialChipIndex: Int = 0,
-              initialCycle: Int = 0,
-              initialTimerSeconds: Int = 0,
-              onSaveCurrentTimerData: (ChipType, String?, Int?, Int?) -> Unit = { _, _, _, _ ->},
-              onLoadTimerSecondsRemainings: () -> Int = { 0 },
-              onSetTimerState: (Boolean) -> Unit = {},
-              onBackToHome: () -> Unit = {},
-              onTimerExpired: () -> Unit = {}) {
+fun TimerView(context: Context = LocalContext.current,
+              navController: NavHostController = rememberSwipeDismissableNavController(),
+              viewModel: TimerViewModel = TimerViewModel(ChipDatas.demoList),
+              openNotification: () -> Unit = {}
+) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
     val activeColor = Color("#649e5d".toColorInt())
@@ -53,20 +54,20 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Number of the cycle of the tomato timer
     val totalCycles by remember(Unit) {
-        mutableStateOf(chips[2].value.toInt())
+        mutableStateOf(viewModel.totalCycles)
     }
 
     //Current timer index type
     var currentChipIndex by remember(Unit) {
-        mutableStateOf(initialChipIndex)
+        mutableStateOf(viewModel.initialChipIndex)
     }
 
     //Current timer
-    val currentChip = chips[currentChipIndex]
+    val currentChip = viewModel.chips[currentChipIndex]
 
     //Current tomato cycle
     var currentCycle by remember(Unit) {
-        mutableStateOf(initialCycle)
+        mutableStateOf(viewModel.initialCycle)
     }
 
     //Timer state
@@ -100,8 +101,8 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
     //Timer total seconds, that never changes, except for a change of timer type or status
     var maxTimerSeconds by remember(currentChip.type) {
         val seconds =
-            if (initialTimerSeconds > 0)
-                initialTimerSeconds else
+            if (viewModel.initialTimerSeconds > 0)
+                viewModel.initialTimerSeconds else
                 currentChip.value.toInt() * 60
         mutableStateOf(seconds)
     }
@@ -117,10 +118,10 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         mutableStateOf(pauseIcon)
     }
 
-    val timer by remember(currentChip.type, maxTimerSeconds) {
+    val timer by remember(currentChip.type, 5000/*maxTimerSeconds*/) {
         val chipTimerSeconds = currentChip.value.toInt() * 60
         mutableStateOf(object : CountDownTimer(
-            maxTimerSeconds * 1000L, 1000) {
+            /*maxTimerSeconds*/5 * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 currentTimerSecondsRemaining = (millisUntilFinished / 1000).toInt()
                 val minutesRemaining = (currentTimerSecondsRemaining / 60)
@@ -134,16 +135,22 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
                 progress = (1f - (1f - currentTimerSecondsRemaining.toFloat().div(chipTimerSeconds))).toDouble()
 
-                onSaveCurrentTimerData(
-                    currentChip.type, //chipType
-                    currentChip.title, //timerTitle
-                    currentCycle, //currentCycle
-                    currentTimerSecondsRemaining //secondsRemaining
+                viewModel.saveCurrentTimerData(
+                    context,
+                    chipType = currentChip.type,
+                    currentTimerName = currentChip.title,
+                    currentCycle = currentCycle,
+                    secondsRemaining = currentTimerSecondsRemaining
                 )
             }
 
             override fun onFinish() {
-                onTimerExpired()
+                setTimerExpired(
+                    context,
+                    viewModel,
+                    navController,
+                    openNotification
+                )
             }
 
         })
@@ -151,7 +158,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
     //Conditional timer auto-start/pause (change of timer type or timer state)
     LaunchedEffect(currentChip.type, isTimerActive) {
-        onSetTimerState(isTimerActive)
+        viewModel.setTimerState(context, isTimerActive = isTimerActive)
         if (isTimerActive) {
             timer.start()
         } else {
@@ -163,7 +170,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
         isAlertDialogVisible = !isAlertDialogVisible
 
         if (!isAlertDialogVisible) {
-            maxTimerSeconds = onLoadTimerSecondsRemainings()
+            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
             isTimerActive = true
         }
     }
@@ -201,7 +208,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         },
                         onClick = {
-                            maxTimerSeconds = onLoadTimerSecondsRemainings()
+                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                             isAlertDialogVisible = false
                             isTimerActive = true
                         }
@@ -228,7 +235,7 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
                             )
                         },
                         onClick = {
-                            onBackToHome()
+                            backToHome(context, viewModel, navController)
                         }
                     )
                 }
@@ -294,14 +301,24 @@ fun TimerView(@PreviewParameter(ChipListProvider::class) chips: List<Chip>,
 
                         if (!isTimerActive) {
                             //Restore the paused timer with the remaining seconds
-                            maxTimerSeconds = onLoadTimerSecondsRemainings()
+                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                         }
 
                         isTimerActive = !isTimerActive
-                        onSetTimerState(isTimerActive)
+                        viewModel.setTimerState(context, isTimerActive = isTimerActive)
                     }
                 )
             }
         }
     }
+}
+
+fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHostController){
+    viewModel.cancelTimer(context)
+    navController.popBackStack()
+}
+
+fun setTimerExpired(context: Context, viewModel: TimerViewModel, navController: NavHostController, openNotification: () -> Unit) {
+    viewModel.setTimerState(context, false)
+    openNotification()
 }

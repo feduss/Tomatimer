@@ -1,11 +1,12 @@
 package com.feduss.tomato.views
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Text
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -17,33 +18,38 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.navigation.NavController
 import androidx.wear.compose.material.*
+import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.feduss.tomato.R
 import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.enums.ValueType
-import com.feduss.tomato.models.Chip
-import com.feduss.tomato.models.ChipProvider
+import com.feduss.tomato.enums.Consts
+import com.feduss.tomato.provider.ChipDatas
+import com.feduss.tomato.views.edit.EditViewModel
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Preview
 @Composable
-fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro", "25", "min", ChipType.Tomato),
-             type: ValueType = ValueType.Time, onConfirmClicked: (ChipType, String) -> Unit = { _, _ ->}) {
+fun EditView(
+    context: Context = LocalContext.current,
+    navController: NavController = rememberSwipeDismissableNavController(),
+    viewModel: EditViewModel = EditViewModel(ChipDatas.demoList[0])
+) {
 
     val haptic = LocalHapticFeedback.current
 
     val color = Color(("#E3BAFF".toColorInt()))
 
     val numbOptions =
-        when (chip.type) {
+        when (viewModel.chip.type) {
             ChipType.CyclesNumber -> 10
             else -> {
                 60
@@ -52,7 +58,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
 
     val items: List<Int> = (1..numbOptions + 1).toList()
 
-    val initOption = chip.value.toInt() - 1
+    val initOption = viewModel.chip.value.toInt() - 1
 
     val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
@@ -82,7 +88,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
         verticalArrangement = Arrangement.spacedBy(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = chip.title,
+            text = viewModel.chip.title,
             color = color
         )
 
@@ -91,7 +97,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
             contentDescription = contentDescription,
             readOnly = false,
             readOnlyLabel = { Text(
-                                    text = chip.title,
+                                    text = viewModel.chip.title,
                                     color = Color.White
                                 )},
             onSelected = {},
@@ -103,7 +109,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                         } else {
                             state.scrollToOption(state.selectedOption - 1)
                         }
-                        perfomHapticFeedback(haptic)
+                        performHapticFeedback(haptic)
                     }
                     true
                 }
@@ -136,7 +142,7 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
                 )
             },
             onClick = {
-                onConfirmClicked(chip.type, (state.selectedOption + 1).toString())
+                confirmButtonClicked(context, viewModel, navController, viewModel.chip.type, (state.selectedOption + 1).toString())
             }
         )
     }
@@ -147,6 +153,16 @@ fun EditView(@PreviewParameter(ChipProvider::class) chip: Chip = Chip("Pomodoro"
 
 }
 
-fun perfomHapticFeedback(haptic: HapticFeedback) {
+fun performHapticFeedback(haptic: HapticFeedback) {
     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+}
+
+fun confirmButtonClicked(context: Context, viewModel: EditViewModel, navController: NavController,
+                         chipType: ChipType, newValue: String) {
+    viewModel.setNewValue(context, chipType, newValue)
+
+    //The SetupView needs to refresh its data
+    navController.previousBackStackEntry?.savedStateHandle?.set(Consts.NewValueKey.value, newValue)
+
+    navController.popBackStack()
 }

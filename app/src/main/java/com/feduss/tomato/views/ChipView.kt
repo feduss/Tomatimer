@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.*
 import androidx.core.graphics.toColorInt
 import com.feduss.tomato.models.Chip
-import com.feduss.tomato.models.ChipProvider
+import com.feduss.tomato.provider.ChipProvider
 
 @OptIn(ExperimentalUnitApi::class)
 @Preview

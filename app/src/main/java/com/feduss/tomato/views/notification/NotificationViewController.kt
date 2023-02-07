@@ -1,4 +1,4 @@
-package com.feduss.tomato
+package com.feduss.tomato.views.notification
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -6,12 +6,14 @@ import android.os.*
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,15 +22,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.SwipeToDismissBox
+import com.feduss.tomato.MainViewController
+import com.feduss.tomato.MainViewModel
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.utils.AlarmUtils
 import com.feduss.tomato.utils.NotificationUtils
 import com.feduss.tomato.utils.PrefsUtils
-import kotlin.system.exitProcess
 
-class NotificationActivity : AppCompatActivity() {
+class NotificationViewController : AppCompatActivity() {
 
+    private val viewModel: NotificationViewModel by viewModels()
     private val context = this
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -41,9 +45,9 @@ class NotificationActivity : AppCompatActivity() {
 
         AlarmUtils.vibrate(context)
 
-        val chipTitle = PrefsUtils.getPref(this, PrefParamName.CurrentTimerName.name) ?: "NoTitle"
-        val currentCycle = PrefsUtils.getPref(this, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
-        val currentChipType = PrefsUtils.getPref(this, PrefParamName.CurrentChipType.name) ?: "NoType"
+        val chipTitle = viewModel.getChipTitleFromPrefs(context)
+        val currentCycle = viewModel.getCurrentCycleFromPrefs(context)
+        val currentChipType = viewModel.getCurrentChipTypeFromPrefs(context)
         val chipType = ChipType.fromString(currentChipType)
 
 
@@ -111,19 +115,7 @@ class NotificationActivity : AppCompatActivity() {
                                             )
                                         },
                                         onClick = {
-                                            PrefsUtils.setNextTimer(context, chipType, currentCycle)
-
-                                            val appIntent =
-                                                Intent(context, MainActivityViewController::class.java)
-                                            appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            context.startActivity(appIntent)
-
-                                            Log.e(
-                                                "TOMATO:",
-                                                "Open app and go to next timer from notification activity"
-                                            )
-
-                                            finish()
+                                            goToNextTimer(chipType, currentCycle)
                                         }
                                     )
                                     Button(
@@ -148,6 +140,22 @@ class NotificationActivity : AppCompatActivity() {
         }
     }
 
+    private fun goToNextTimer(chipType: ChipType?, currentCycle: Int) {
+        viewModel.setNextTimerInPrefs(context, chipType, currentCycle)
+
+        val appIntent =
+            Intent(context, MainViewController::class.java)
+        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(appIntent)
+
+        Log.e(
+            "TOMATO:",
+            "Open app and go to next timer from notification activity"
+        )
+
+        finish()
+    }
+
     private fun handleBack(chipType: ChipType?, currentCycle: Int) {
         if (chipType == ChipType.LongBreak) {
             PrefsUtils.cancelTimer(context)
@@ -158,10 +166,10 @@ class NotificationActivity : AppCompatActivity() {
     }
 
     private fun cancelQueueAndOpenApp() {
-        PrefsUtils.cancelTimer(context)
+        viewModel.cancelTimerInPrefs(context)
         NotificationUtils.removeOngoingNotification(context)
 
-        val appIntent = Intent(context, MainActivityViewController::class.java)
+        val appIntent = Intent(context, MainViewController::class.java)
         appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(appIntent)
 

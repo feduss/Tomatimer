@@ -29,7 +29,9 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
+import com.feduss.tomato.enums.Section
 import com.feduss.tomato.receivers.TimerReceiver
 import com.feduss.tomato.utils.AlarmUtils
 import com.feduss.tomato.utils.NotificationUtils
@@ -37,9 +39,9 @@ import com.feduss.tomato.utils.PrefsUtils
 import com.feduss.tomato.views.MainActivity
 
 
-class MainActivityViewController : ComponentActivity() {
+class MainViewController : ComponentActivity() {
 
-    private val viewModel: MainActivityViewModel by viewModels()
+    private val viewModel: MainViewModel by viewModels()
     private lateinit var navController: NavHostController
     private lateinit var context: Context
     private val timerReceiver = TimerReceiver()
@@ -47,33 +49,17 @@ class MainActivityViewController : ComponentActivity() {
     private val permissionGranted = MutableLiveData(false)
     private var overlayPermissionGranted = false
 
-//    private val requestPermissionActivityResult = registerForActivityResult(
-//        ActivityResultContracts.RequestMultiplePermissions()
-//    ) { permissions ->
-//        var tempPermissionState = true
-//        permissions.forEach { permission ->
-//            val state = if (permission.value) "granted" else "not granted"
-//            Log.e("TOMATO:", "${permission.key} is $state ");
-//
-//            if (!permission.value) {
-//                tempPermissionState = false
-//                return@forEach
-//            }
-//        }
-//
-//        arePermissionsGranted = tempPermissionState
-//    }
-
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         // Handle the splash screen transition.
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        context = this
 
         val filter = IntentFilter()
         registerReceiver(timerReceiver, filter)
-        context = this
 
         overlayPermissionGranted = Settings.canDrawOverlays(this)
         permissionGranted.postValue(overlayPermissionGranted)
@@ -95,10 +81,11 @@ class MainActivityViewController : ComponentActivity() {
                         .height(screenHeight)) {
                     if (arePermissionsGrantedState == true) {
                         MainActivity(
-                            navController = navController,
                             context = context,
-                            viewController = this,
-                            viewModel = viewModel
+                            activity = this,
+                            navController = navController,
+                            chips = viewModel.loadDataFromPrefs(context),
+                            startDestination = Section.Setup.baseRoute
                         )
                     } else if (!overlayPermissionGranted) {
                         Box(

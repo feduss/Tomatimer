@@ -17,11 +17,11 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.App.Starting">
         <activity
-            android:name=".NotificationActivity"
+            android:name=".views.notification.NotificationViewController"
+            android:exported="false"
             android:showWhenLocked="true"
             android:turnScreenOn="true"
-            android:exported="false"
-            android:theme="@style/Theme.App.Notification"/>
+            android:theme="@style/Theme.App.Notification" />
 
         <receiver
             android:name=".receivers.TimerReceiver"
@@ -40,7 +40,7 @@
             android:value="true" />
 
         <activity
-            android:name=".MainActivityViewController"
+            android:name=".MainViewController"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>

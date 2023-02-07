@@ -22,49 +22,47 @@ class PrefsUtils {
         }
 
         fun setNextTimer(context: Context, chipType: ChipType?, currentCycle: Int) {
-            chipType?.let { chipTypeNotNull ->
-                val totalCycles: Int =
-                    getPref(context, ChipType.CyclesNumber.valuePrefKey)?.toInt() ?: -1
+            val totalCycles: Int =
+                getPref(context, ChipType.CyclesNumber.valuePrefKey)?.toInt() ?: -1
 
-                when (chipType) {
-                    ChipType.Tomato -> {
-                        if (currentCycle == totalCycles - 1) {
-                            setPref(
-                                context,
-                                PrefParamName.CurrentTimerIndex.name,
-                                ChipType.LongBreak.tag.toString()
-                            )
-                        } else {
-                            setPref(
-                                context,
-                                PrefParamName.CurrentTimerIndex.name,
-                                ChipType.ShortBreak.tag.toString()
-                            )
-                        }
-                    }
-                    ChipType.ShortBreak -> {
+            when (chipType) {
+                ChipType.Tomato -> {
+                    if (currentCycle == totalCycles - 1) {
                         setPref(
                             context,
                             PrefParamName.CurrentTimerIndex.name,
-                            ChipType.Tomato.tag.toString()
+                            ChipType.LongBreak.tag.toString()
                         )
+                    } else {
                         setPref(
                             context,
-                            PrefParamName.CurrentCycle.name,
-                            (currentCycle + 1).toString()
+                            PrefParamName.CurrentTimerIndex.name,
+                            ChipType.ShortBreak.tag.toString()
                         )
                     }
-                    ChipType.LongBreak -> {
-                        setPref(context, PrefParamName.CurrentTimerName.name, null)
-                        setPref(context, PrefParamName.CurrentCycle.name, null)
-                        setPref(context, PrefParamName.SecondsRemaining.name, null)
-                    }
-                    else -> {}
                 }
-
-                //TODO: è necessario?
-                setPref(context, PrefParamName.SecondsRemaining.name, null)
+                ChipType.ShortBreak -> {
+                    setPref(
+                        context,
+                        PrefParamName.CurrentTimerIndex.name,
+                        ChipType.Tomato.tag.toString()
+                    )
+                    setPref(
+                        context,
+                        PrefParamName.CurrentCycle.name,
+                        (currentCycle + 1).toString()
+                    )
+                }
+                ChipType.LongBreak -> {
+                    setPref(context, PrefParamName.CurrentTimerName.name, null)
+                    setPref(context, PrefParamName.CurrentCycle.name, null)
+                    setPref(context, PrefParamName.SecondsRemaining.name, null)
+                }
+                else -> {}
             }
+
+            //TODO: è necessario?
+            setPref(context, PrefParamName.SecondsRemaining.name, null)
         }
 
         fun cancelTimer(context: Context) {
