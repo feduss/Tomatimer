@@ -19,11 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.feduss.tomato.MainViewController
-import com.feduss.tomato.MainViewModel
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.utils.AlarmUtils
@@ -35,8 +35,6 @@ class NotificationViewController : AppCompatActivity() {
     private val viewModel: NotificationViewModel by viewModels()
     private val context = this
 
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -53,85 +51,109 @@ class NotificationViewController : AppCompatActivity() {
 
 
         setContent {
-            BackHandler() {
-                handleBack(chipType, currentCycle)
-            }
+            NotificationContent(chipType, currentCycle, chipTitle)
+        }
+    }
 
-            MaterialTheme {
-                val configuration = LocalConfiguration.current
-                val screenHeight = configuration.screenHeightDp.dp
-                val screenWidth = configuration.screenWidthDp.dp
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @Composable
+    @Preview
+    @OptIn(ExperimentalMaterial3Api::class)
+    private fun NotificationContent(
+        chipType: ChipType? = ChipType.Tomato,
+        currentCycle: Int = 0,
+        chipTitle: String = "Pomodoro"
+    ) {
+        BackHandler {
+            handleBack(chipType, currentCycle)
+        }
 
-                val color = Color(("#E3BAFF".toColorInt()))
-                Scaffold(
-                    modifier = Modifier
-                        .width(screenWidth)
-                        .height(screenHeight)) {
-                    SwipeToDismissBox(onDismissed = {
-                        handleBack(chipType, currentCycle)
-                    }) {
-                        Box(
+        MaterialTheme {
+            val configuration = LocalConfiguration.current
+            val screenHeight = configuration.screenHeightDp.dp
+            val screenWidth = configuration.screenWidthDp.dp
+
+            val color = Color(("#E3BAFF".toColorInt()))
+
+            val paddingValues = PaddingValues(
+                start = 16.dp,
+                top = 8.dp,
+                end = 16.dp,
+                bottom = 8.dp
+            )
+
+            Scaffold(
+                modifier = Modifier
+                    .width(screenWidth)
+                    .height(screenHeight)
+            ) {
+                SwipeToDismissBox(onDismissed = {
+                    handleBack(chipType, currentCycle)
+                }) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .background(Color.Black),
-                            contentAlignment = Alignment.Center
+                                .background(Color.Black)
+                                .verticalScroll(rememberScrollState())
+                                .padding(24.dp, 32.dp, 24.dp, 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black)
-                                    .verticalScroll(rememberScrollState())
-                                    .padding(24.dp, 32.dp, 24.dp, 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(
-                                    text = "Timer $chipTitle (ciclo ${currentCycle + 1}) scaduto!",
-                                    color = color,
-                                    textAlign = TextAlign.Center
+                            Text(
+                                text = "Timer $chipTitle (ciclo ${currentCycle + 1}) scaduto!",
+                                color = color,
+                                textAlign = TextAlign.Center
+                            )
+                            if (chipType == ChipType.LongBreak) {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(color, color),
+                                    contentPadding = paddingValues,
+                                    content = {
+                                        Text(
+                                            text = "Apri app",
+                                            color = Color.Black,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    },
+                                    onClick = {
+                                        cancelQueueAndOpenApp()
+                                    }
                                 )
-                                if (chipType == ChipType.LongBreak) {
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(color, color),
-                                        content = {
-                                            Text(
-                                                text = "Apri app",
-                                                color = Color.Black,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        },
-                                        onClick = {
-                                            cancelQueueAndOpenApp()
-                                        }
-                                    )
-                                } else {
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(color, color),
-                                        content = {
-                                            Text(
-                                                text = "Prossimo timer",
-                                                color = Color.Black,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        },
-                                        onClick = {
-                                            goToNextTimer(chipType, currentCycle)
-                                        }
-                                    )
-                                    Button(
-                                        colors = ButtonDefaults.buttonColors(color, color),
-                                        content = {
-                                            Text(
-                                                text = "Cancella coda",
-                                                color = Color.Black,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        },
-                                        onClick = {
-                                            cancelQueueAndOpenApp()
-                                        }
-                                    )
-                                }
+                            } else {
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(color, color),
+                                    contentPadding = paddingValues,
+                                    content = {
+                                        Text(
+                                            text = "Prossimo timer",
+                                            color = Color.Black,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    },
+                                    onClick = {
+                                        goToNextTimer(chipType, currentCycle)
+                                    }
+                                )
+                                Button(
+                                    colors = ButtonDefaults.buttonColors(color, color),
+                                    contentPadding = paddingValues,
+                                    content = {
+                                        Text(
+                                            text = "Cancella coda",
+                                            color = Color.Black,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    },
+                                    onClick = {
+                                        cancelQueueAndOpenApp()
+                                    }
+                                )
                             }
                         }
                     }

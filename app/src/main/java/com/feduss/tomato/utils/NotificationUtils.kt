@@ -40,7 +40,7 @@ class NotificationUtils {
                 Consts.MainNotificationVisibleChannel.value,
                 NotificationManager.IMPORTANCE_DEFAULT
             )
-            notificationManager.createNotificationChannel(channel);
+            notificationManager.createNotificationChannel(channel)
 
             val notificationBuilder = NotificationCompat.Builder(
                 context,

@@ -61,7 +61,6 @@ class PrefsUtils {
                 else -> {}
             }
 
-            //TODO: è necessario?
             setPref(context, PrefParamName.SecondsRemaining.name, null)
         }
 

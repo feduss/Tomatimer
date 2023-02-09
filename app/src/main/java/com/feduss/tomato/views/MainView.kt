@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -13,15 +14,19 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import com.feduss.tomato.MainViewController
 import com.feduss.tomato.views.notification.NotificationViewController
-import com.feduss.tomato.SetupView
+import com.feduss.tomato.views.setup.SetupView
 import com.feduss.tomato.enums.OptionalParams
 import com.feduss.tomato.enums.Params
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.models.Chip
+import com.feduss.tomato.views.edit.EditView
 import com.feduss.tomato.views.edit.EditViewModel
+import com.feduss.tomato.views.edit.EditViewModelFactory
 import com.feduss.tomato.views.setup.SetupViewModel
+import com.feduss.tomato.views.setup.SetupViewModelFactory
 import com.feduss.tomato.views.timer.TimerView
 import com.feduss.tomato.views.timer.TimerViewModel
+import com.feduss.tomato.views.timer.TimerViewModelFactory
 import kotlin.system.exitProcess
 
 @Composable
@@ -40,7 +45,7 @@ fun MainActivity(
     ) {
 
         composable(route = Section.Setup.baseRoute) {
-            val setupViewModel = SetupViewModel(chips) //TODO: impl viewmodel factory
+            val setupViewModel: SetupViewModel = viewModel(factory = SetupViewModelFactory(chips))
             SetupView(context, navController, setupViewModel, closeApp = { closeApp(activity) })
         }
 
@@ -51,7 +56,7 @@ fun MainActivity(
             val tag: Int? = navBackStackEntry.arguments?.getString(Params.Tag.name)?.toIntOrNull()
             tag?.let { tagNotNull ->
                 val chip = chips[tagNotNull]
-                val editViewModel = EditViewModel(chip) //TODO: impl viewmodel factory
+                val editViewModel: EditViewModel = viewModel(factory = EditViewModelFactory(chip))
                 EditView(context, navController, editViewModel)
             }
         }
@@ -78,17 +83,18 @@ fun MainActivity(
             val initialTimerSeconds =
                 navBackStackEntry.arguments?.getString(OptionalParams.TimerSeconds.name)?.toInt() ?: 0
 
-            //TODO: impl viewmodel factory
-            val viewModel = TimerViewModel(
-                chips,
-                initialChipIndex,
-                initialCycle,
-                initialTimerSeconds
+            val timerViewModel: TimerViewModel = viewModel(
+                factory = TimerViewModelFactory(chips,
+                    initialChipIndex,
+                    initialCycle,
+                    initialTimerSeconds
+                )
             )
+
             TimerView(
                 context = context,
                 navController = navController,
-                viewModel = viewModel,
+                viewModel = timerViewModel,
                 openNotification = { openNotification(context, activity) }
             )
         }

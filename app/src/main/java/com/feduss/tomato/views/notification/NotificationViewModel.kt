@@ -16,7 +16,7 @@ class NotificationViewModel: ViewModel() {
         return PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
     }
 
-    fun getCurrentChipTypeFromPrefs(context: Context): String? {
+    fun getCurrentChipTypeFromPrefs(context: Context): String {
         return PrefsUtils.getPref(context, PrefParamName.CurrentChipType.name) ?: "NoType"
     }
 

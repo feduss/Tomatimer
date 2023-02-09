@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,9 +28,6 @@ import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.feduss.tomato.R
-import com.feduss.tomato.enums.ChipType
-import com.feduss.tomato.enums.Consts
-import com.feduss.tomato.enums.Section
 import com.feduss.tomato.provider.ChipDatas
 
 
@@ -58,7 +54,7 @@ fun TimerView(context: Context = LocalContext.current,
     }
 
     //Current timer index type
-    var currentChipIndex by remember(Unit) {
+    val currentChipIndex by remember(Unit) {
         mutableStateOf(viewModel.initialChipIndex)
     }
 
@@ -66,7 +62,7 @@ fun TimerView(context: Context = LocalContext.current,
     val currentChip = viewModel.chips[currentChipIndex]
 
     //Current tomato cycle
-    var currentCycle by remember(Unit) {
+    val currentCycle by remember(Unit) {
         mutableStateOf(viewModel.initialCycle)
     }
 
@@ -118,10 +114,10 @@ fun TimerView(context: Context = LocalContext.current,
         mutableStateOf(pauseIcon)
     }
 
-    val timer by remember(currentChip.type, 5000/*maxTimerSeconds*/) {
+    val timer by remember(currentChip.type, maxTimerSeconds) {
         val chipTimerSeconds = currentChip.value.toInt() * 60
         mutableStateOf(object : CountDownTimer(
-            /*maxTimerSeconds*/5 * 1000L, 1000) {
+            maxTimerSeconds * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 currentTimerSecondsRemaining = (millisUntilFinished / 1000).toInt()
                 val minutesRemaining = (currentTimerSecondsRemaining / 60)
@@ -166,7 +162,7 @@ fun TimerView(context: Context = LocalContext.current,
         }
     }
 
-    BackHandler() {
+    BackHandler {
         isAlertDialogVisible = !isAlertDialogVisible
 
         if (!isAlertDialogVisible) {

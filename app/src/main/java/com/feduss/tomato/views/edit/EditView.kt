@@ -1,4 +1,4 @@
-package com.feduss.tomato.views
+package com.feduss.tomato.views.edit
 
 import android.content.Context
 import androidx.compose.foundation.background
@@ -31,7 +31,6 @@ import com.feduss.tomato.R
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.provider.ChipDatas
-import com.feduss.tomato.views.edit.EditViewModel
 import kotlinx.coroutines.launch
 
 

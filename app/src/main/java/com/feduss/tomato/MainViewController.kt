@@ -29,7 +29,6 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
-import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.receivers.TimerReceiver
@@ -37,7 +36,6 @@ import com.feduss.tomato.utils.AlarmUtils
 import com.feduss.tomato.utils.NotificationUtils
 import com.feduss.tomato.utils.PrefsUtils
 import com.feduss.tomato.views.MainActivity
-
 
 class MainViewController : ComponentActivity() {
 

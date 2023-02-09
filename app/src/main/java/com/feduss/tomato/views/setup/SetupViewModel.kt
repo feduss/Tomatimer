@@ -1,7 +1,6 @@
 package com.feduss.tomato.views.setup
 
 import android.content.Context
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.models.Chip
@@ -10,14 +9,14 @@ import java.util.*
 
 class SetupViewModel(chips: List<Chip>) : ViewModel() {
 
-    val chips = MutableLiveData(chips)
-    var lastSelectedChipIndex: Int? = null
+    var chips = chips.toMutableList()
+    private var lastSelectedChipIndex: Int? = null
 
     fun updateLastSelectedChip(newValue: String) {
         lastSelectedChipIndex?.let { index ->
-            val tempChips = chips.value
-            tempChips?.get(index)?.value = newValue
-            chips.postValue(tempChips)
+            val tempChips = chips
+            tempChips[index].value = newValue
+            chips = tempChips
         }
     }
 

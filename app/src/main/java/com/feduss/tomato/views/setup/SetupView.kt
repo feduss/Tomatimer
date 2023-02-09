@@ -1,4 +1,4 @@
-package com.feduss.tomato
+package com.feduss.tomato.views.setup
 
 import android.content.Context
 import androidx.activity.compose.BackHandler
@@ -28,12 +28,12 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.feduss.tomato.R
 import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.OptionalParams
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.provider.ChipDatas
 import com.feduss.tomato.views.ChipView
-import com.feduss.tomato.views.setup.SetupViewModel
 
 @Preview
 @Composable
@@ -41,9 +41,6 @@ fun SetupView(context: Context = LocalContext.current,
               navController: NavHostController = rememberSwipeDismissableNavController(),
               viewModel: SetupViewModel = SetupViewModel(ChipDatas.demoList),
               closeApp: () -> Unit = {}) {
-
-    val chips = viewModel.chips.observeAsState()
-
     //Go to timer screen if there was an active timer
     restoreSavedTimerFlow(context, viewModel, navController)
 
@@ -60,7 +57,7 @@ fun SetupView(context: Context = LocalContext.current,
         mutableStateOf(false)
     }
 
-    BackHandler() {
+    BackHandler {
         isAlertDialogVisible = !isAlertDialogVisible
     }
 
@@ -140,19 +137,17 @@ fun SetupView(context: Context = LocalContext.current,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    chips.value?.let { datas ->
-                        items(datas) { chip ->
-                            ChipView(
-                                chip = chip,
-                                tag = chip.type.tag,
-                                fontSize = 10f,
-                                onChipClicked = { tag ->
-                                    viewModel.userHasSelectedChip(tag.toInt())
-                                    val args = listOf(tag)
-                                    navController.navigate(Section.Edit.withArgs(args))
-                                }
-                            )
-                        }
+                    items(viewModel.chips) { chip ->
+                        ChipView(
+                            chip = chip,
+                            tag = chip.type.tag,
+                            fontSize = 10f,
+                            onChipClicked = { tag ->
+                                viewModel.userHasSelectedChip(tag.toInt())
+                                val args = listOf(tag)
+                                navController.navigate(Section.Edit.withArgs(args))
+                            }
+                        )
                     }
                 }
                 val color = Color(("#E3BAFF".toColorInt()))
