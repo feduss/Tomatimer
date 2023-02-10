@@ -153,7 +153,17 @@ fun TimerView(context: Context = LocalContext.current,
                 )
             }
 
-        }.start())
+        })
+    }
+
+    //Conditional timer auto-start/pause (change of timer type or timer state)
+    LaunchedEffect(currentChip.type, isTimerActive) {
+        viewModel.setTimerState(context, isTimerActive = isTimerActive)
+        if (isTimerActive) {
+            timer.start()
+        } else {
+            timer.cancel()
+        }
     }
 
     viewModel.setTimerState(context, isTimerActive = true)
@@ -297,9 +307,7 @@ fun TimerView(context: Context = LocalContext.current,
                         iconImage = if (isTimerActive) playIcon else pauseIcon
                         sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                        if (isTimerActive) {
-                            timer.cancel()
-                        } else {
+                        if (!isTimerActive) {
                             //Restore the paused timer with the remaining seconds
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                         }

@@ -64,7 +64,7 @@ class AlarmUtils {
         }
 
         fun vibrate(context: Context) {
-            val vibrationPattern = longArrayOf(0, 500, 50, 300)
+            val vibrationPattern = longArrayOf(500, 50, 500, 50)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 val vibratorService =
                     context.getSystemService(AppCompatActivity.VIBRATOR_MANAGER_SERVICE) as VibratorManager
