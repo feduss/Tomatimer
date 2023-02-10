@@ -7,7 +7,7 @@ import com.feduss.tomato.models.Chip
 val demoChips = listOf(
     Chip("Pomodoro", "25", "min", type = ChipType.Tomato),
     Chip("P. breve", "5", "min", type = ChipType.ShortBreak),
-    Chip("Num. cicli", "4", type = ChipType.CyclesNumber),
+    Chip("Num. cicli", "Numero cicli","4", type = ChipType.CyclesNumber),
     Chip("P. lunga", "25", "min", type = ChipType.LongBreak)
 )
 

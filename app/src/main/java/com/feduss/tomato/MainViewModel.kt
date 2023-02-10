@@ -8,10 +8,10 @@ import com.feduss.tomato.utils.PrefsUtils
 
 open class MainViewModel : ViewModel() {
     private var chips = listOf(
-        Chip("Pomodoro", "45", "min", ChipType.Tomato),
-        Chip("P. breve", "5", "min", ChipType.ShortBreak),
-        Chip("Num. cicli", "4", type = ChipType.CyclesNumber),
-        Chip("P. lunga", "15", "min", ChipType.LongBreak)
+        Chip("Pomodoro", "Pomodoro","45", "min", ChipType.Tomato),
+        Chip("P. breve", "Pausa breve", "5", "min", ChipType.ShortBreak),
+        Chip("Num. cicli", "Numero cicli","4", type = ChipType.CyclesNumber),
+        Chip("P. lunga", "Pausa lunga","15", "min", ChipType.LongBreak)
     )
 
     fun loadDataFromPrefs(context: Context): List<Chip> {

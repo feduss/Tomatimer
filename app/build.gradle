@@ -11,8 +11,8 @@ android {
         applicationId 'com.feduss.tomato'
         minSdk 30
         targetSdk 33
-        versionCode 7
-        versionName '1.0.5'
+        versionCode 8
+        versionName '1.0.6'
 
     }
 

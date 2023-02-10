@@ -2,7 +2,6 @@ package com.feduss.tomato.views.timer
 
 import android.content.Context
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -88,7 +87,7 @@ fun TimerView(context: Context = LocalContext.current,
 
     //Upper title of the screen, that is the name of the timer
     val title by remember(currentChip.type) {
-        mutableStateOf(currentChip.title)
+        mutableStateOf(currentChip.fullTitle)
     }
 
     //Middle label, that shows the minutes:seconds remaining
@@ -139,7 +138,7 @@ fun TimerView(context: Context = LocalContext.current,
                 viewModel.saveCurrentTimerData(
                     context,
                     chipType = currentChip.type,
-                    currentTimerName = currentChip.title,
+                    currentTimerName = currentChip.fullTitle,
                     currentCycle = currentCycle,
                     secondsRemaining = currentTimerSecondsRemaining
                 )
@@ -148,7 +147,6 @@ fun TimerView(context: Context = LocalContext.current,
                 setTimerExpired(
                     context,
                     viewModel,
-                    navController,
                     openNotification
                 )
             }
@@ -168,7 +166,7 @@ fun TimerView(context: Context = LocalContext.current,
 
     viewModel.setTimerState(context, isTimerActive = true)
 
-    ComposableLifecycle { source, event ->
+    ComposableLifecycle { _, event ->
         if (event == Lifecycle.Event.ON_PAUSE) {
             timer.cancel()
         }
@@ -326,7 +324,7 @@ fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHo
     navController.popBackStack()
 }
 
-fun setTimerExpired(context: Context, viewModel: TimerViewModel, navController: NavHostController, openNotification: () -> Unit) {
+fun setTimerExpired(context: Context, viewModel: TimerViewModel, openNotification: () -> Unit) {
     viewModel.setTimerState(context, false)
     openNotification()
 }

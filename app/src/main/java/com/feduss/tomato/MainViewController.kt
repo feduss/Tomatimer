@@ -170,7 +170,6 @@ class MainViewController : ComponentActivity() {
         if (isTimerActive) {
             AlarmUtils.setBackgroundAlert(context)
             NotificationUtils.setOngoingNotification(context)
-            finishAndRemoveTask()
         }
     }
 

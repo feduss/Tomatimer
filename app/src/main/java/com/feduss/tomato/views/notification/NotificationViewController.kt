@@ -2,6 +2,9 @@ package com.feduss.tomato.views.notification
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -30,6 +33,7 @@ import com.feduss.tomato.utils.AlarmUtils
 import com.feduss.tomato.utils.NotificationUtils
 import com.feduss.tomato.utils.PrefsUtils
 
+
 class NotificationViewController : AppCompatActivity() {
 
     private val viewModel: NotificationViewModel by viewModels()
@@ -41,17 +45,27 @@ class NotificationViewController : AppCompatActivity() {
         NotificationUtils.removeOngoingNotification(context)
         PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, "false")
 
-        AlarmUtils.vibrate(context)
-
         val chipTitle = viewModel.getChipTitleFromPrefs(context)
         val currentCycle = viewModel.getCurrentCycleFromPrefs(context)
         val currentChipType = viewModel.getCurrentChipTypeFromPrefs(context)
         val chipType = ChipType.fromString(currentChipType)
 
-
-
         setContent {
             NotificationContent(chipType, currentCycle, chipTitle)
+        }
+
+        AlarmUtils.vibrate(context)
+
+        val alarmSound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val mp: MediaPlayer? = MediaPlayer.create(context, alarmSound)
+
+        if (mp != null) {
+            mp.start()
+            //mp.stop()
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                mp.release()
+            }, 5000)
         }
     }
 
@@ -102,7 +116,7 @@ class NotificationViewController : AppCompatActivity() {
                                 .background(Color.Black)
                                 .verticalScroll(rememberScrollState())
                                 .padding(24.dp, 32.dp, 24.dp, 16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.Top,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(

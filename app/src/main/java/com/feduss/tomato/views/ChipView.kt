@@ -43,7 +43,7 @@ fun ChipView(@PreviewParameter(ChipProvider::class) chip: Chip, tag: Int = 0,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
                 Text(
-                    chip.title,
+                    chip.shortTitle,
                     color = Color(("#E3BAFF".toColorInt())),
                     fontSize = TextUnit(fontSize, TextUnitType.Sp),
                     textAlign = TextAlign.Center

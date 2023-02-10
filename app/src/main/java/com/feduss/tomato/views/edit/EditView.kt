@@ -83,11 +83,11 @@ fun EditView(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp, 16.dp, 8.dp, 16.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+            .padding(8.dp, 24.dp, 8.dp, 24.dp),
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = viewModel.chip.title,
+            text = viewModel.chip.fullTitle,
             color = color
         )
 
@@ -96,7 +96,7 @@ fun EditView(
             contentDescription = contentDescription,
             readOnly = false,
             readOnlyLabel = { Text(
-                                    text = viewModel.chip.title,
+                                    text = viewModel.chip.fullTitle,
                                     color = Color.White
                                 )},
             onSelected = {},
