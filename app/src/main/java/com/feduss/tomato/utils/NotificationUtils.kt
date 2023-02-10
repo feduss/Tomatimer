@@ -25,16 +25,23 @@ class NotificationUtils {
             val timerName = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "Error"
             val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
 
+            //Save in prefs when the notification is set
+            val currentMillisecondsTimestamp = System.currentTimeMillis()
+            PrefsUtils.setPref(context, PrefParamName.OngoingNotificationStartTime.name, currentMillisecondsTimestamp.toString())
+
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             val appIntent = Intent(context, MainViewController::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, 1, appIntent,
-                PendingIntent.FLAG_IMMUTABLE
+            appIntent.putExtra(Consts.FromOngoingNotification.value, true)
+            val appPendingIntent = PendingIntent.getActivity(
+                context,
+                117,
+                appIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
             val runStartTime = SystemClock.elapsedRealtime() + TimeUnit.SECONDS.toMillis(timerSecondsRemaining)
 
-            //The creation of notification channel is mandatory since Api 26 (Oreo)
             val channel = NotificationChannel(
                 Consts.MainChannelId.value,
                 Consts.MainNotificationVisibleChannel.value,
@@ -52,7 +59,6 @@ class NotificationUtils {
             .setOngoing(true)
 
             val ongoingActivityStatus = Status.Builder()
-                // Sets the text used across various surfaces.
                 .addTemplate("#timerType#: #time#")
                 .addPart("timerType", Status.TextPart(timerName))
                 .addPart("time", Status.StopwatchPart(runStartTime))
@@ -65,7 +71,7 @@ class NotificationUtils {
                     notificationBuilder
                 )
                     .setStaticIcon(R.drawable.ic_timer_24dp_test)
-                    .setTouchIntent(pendingIntent)
+                    .setTouchIntent(appPendingIntent)
                     .setStatus(ongoingActivityStatus)
                     .build()
 

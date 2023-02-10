@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -29,6 +28,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.receivers.TimerReceiver
@@ -61,6 +61,10 @@ class MainViewController : ComponentActivity() {
 
         overlayPermissionGranted = Settings.canDrawOverlays(this)
         permissionGranted.postValue(overlayPermissionGranted)
+
+        if(intent.getBooleanExtra(Consts.FromOngoingNotification.value, false)) {
+            restoreTimerSecondsFromOngoingNotification()
+        }
 
         setContent {
             MaterialTheme {
@@ -132,6 +136,23 @@ class MainViewController : ComponentActivity() {
         }
     }
 
+    private fun restoreTimerSecondsFromOngoingNotification() {
+        val ongoingNotificationStartTime = PrefsUtils.getPref(context, PrefParamName.OngoingNotificationStartTime.name)?.toLong() ?: 0L
+        val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
+
+        val timerSecondsEndTime = (ongoingNotificationStartTime / 1000L) + timerSecondsRemaining
+        val currentMillisecondsTimestamp = System.currentTimeMillis()
+
+        var newTimerSecondsRemaining = timerSecondsEndTime - (currentMillisecondsTimestamp / 1000)
+
+        //Corner case?
+        if(newTimerSecondsRemaining < 0) {
+            newTimerSecondsRemaining = 0
+        }
+
+        PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, newTimerSecondsRemaining.toString())
+    }
+
     private fun requestOverlayPermission() {
         startActivity(
             Intent(
@@ -149,7 +170,7 @@ class MainViewController : ComponentActivity() {
         if (isTimerActive) {
             AlarmUtils.setBackgroundAlert(context)
             NotificationUtils.setOngoingNotification(context)
-            Log.e("TOMATO:", "Alarm and notification enabled")
+            finishAndRemoveTask()
         }
     }
 
@@ -163,8 +184,6 @@ class MainViewController : ComponentActivity() {
             overlayPermissionGranted = Settings.canDrawOverlays(this)
             permissionGranted.postValue(overlayPermissionGranted)
         }
-
-        Log.e("TOMATO:", "Alarm and notification removed")
     }
 
     override fun onDestroy() {

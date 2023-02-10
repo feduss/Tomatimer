@@ -20,8 +20,8 @@ class AlarmUtils {
         fun setBackgroundAlert(context: Context) {
             removeBackgroundAlert(context)
 
-            val secondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
-            val millisSince1970 = System.currentTimeMillis()
+            val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
+            val currentMillisecondsTimestamp = System.currentTimeMillis()
 
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
@@ -36,7 +36,7 @@ class AlarmUtils {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
 
-            val alarmTime = (secondsRemaining * 1000L) + millisSince1970
+            val alarmTime = (timerSecondsRemaining * 1000L) + currentMillisecondsTimestamp
 //            alarmManager.setExactAndAllowWhileIdle(
 //                AlarmManager.RTC_WAKEUP,
 //                alarmTime,

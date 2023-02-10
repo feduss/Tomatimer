@@ -2,6 +2,7 @@ package com.feduss.tomato.views.timer
 
 import android.content.Context
 import android.os.CountDownTimer
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -21,6 +23,9 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
@@ -114,8 +119,8 @@ fun TimerView(context: Context = LocalContext.current,
         mutableStateOf(pauseIcon)
     }
 
+    val chipTimerSeconds = currentChip.value.toInt() * 60
     val timer by remember(currentChip.type, maxTimerSeconds) {
-        val chipTimerSeconds = currentChip.value.toInt() * 60
         mutableStateOf(object : CountDownTimer(
             maxTimerSeconds * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -139,7 +144,6 @@ fun TimerView(context: Context = LocalContext.current,
                     secondsRemaining = currentTimerSecondsRemaining
                 )
             }
-
             override fun onFinish() {
                 setTimerExpired(
                     context,
@@ -149,15 +153,13 @@ fun TimerView(context: Context = LocalContext.current,
                 )
             }
 
-        })
+        }.start())
     }
 
-    //Conditional timer auto-start/pause (change of timer type or timer state)
-    LaunchedEffect(currentChip.type, isTimerActive) {
-        viewModel.setTimerState(context, isTimerActive = isTimerActive)
-        if (isTimerActive) {
-            timer.start()
-        } else {
+    viewModel.setTimerState(context, isTimerActive = true)
+
+    ComposableLifecycle { source, event ->
+        if (event == Lifecycle.Event.ON_PAUSE) {
             timer.cancel()
         }
     }
@@ -295,7 +297,9 @@ fun TimerView(context: Context = LocalContext.current,
                         iconImage = if (isTimerActive) playIcon else pauseIcon
                         sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                        if (!isTimerActive) {
+                        if (isTimerActive) {
+                            timer.cancel()
+                        } else {
                             //Restore the paused timer with the remaining seconds
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                         }
@@ -317,4 +321,20 @@ fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHo
 fun setTimerExpired(context: Context, viewModel: TimerViewModel, navController: NavHostController, openNotification: () -> Unit) {
     viewModel.setTimerState(context, false)
     openNotification()
+}
+
+@Composable
+fun ComposableLifecycle(
+    lifeCycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
+    onEvent: (LifecycleOwner, Lifecycle.Event) -> Unit
+) {
+    DisposableEffect(lifeCycleOwner) {
+        val observer = LifecycleEventObserver { source, event ->
+            onEvent(source, event)
+        }
+        lifeCycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifeCycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 }

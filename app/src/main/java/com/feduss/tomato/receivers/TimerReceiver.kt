@@ -12,8 +12,6 @@ class TimerReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         // This method is called when Alarm expired in background.
 
-        Log.e("TOMATO:", "Timer receiver")
-
         AlarmUtils.removeBackgroundAlert(context)
 
         val notificationIntent = Intent(context, NotificationViewController::class.java)

@@ -10,4 +10,5 @@ sealed class Consts(val value: String) {
     object MainNotificationVisibleChannel: Consts("Notifica del timer attivo")
     object SubNotificationVisibleChannel: Consts("Notifica del timer scaduto")
     object NewValueKey: Consts("NewValue")
+    object FromOngoingNotification: Consts("FromOngoingNotification")
 }
