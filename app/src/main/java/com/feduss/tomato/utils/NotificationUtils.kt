@@ -4,16 +4,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.os.SystemClock
 import androidx.core.app.NotificationCompat
 import androidx.wear.ongoing.OngoingActivity
 import androidx.wear.ongoing.Status
-import com.feduss.tomato.MainViewController
-import com.feduss.tomato.enums.Consts
-import java.util.concurrent.TimeUnit
 import com.feduss.tomato.R
+import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
+import java.util.concurrent.TimeUnit
 
 
 class NotificationUtils {
@@ -31,8 +29,8 @@ class NotificationUtils {
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val appIntent = Intent(context, MainViewController::class.java)
-            appIntent.putExtra(Consts.FromOngoingNotification.value, true)
+            val appIntent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+            appIntent?.putExtra(Consts.FromOngoingNotification.value, true)
             val appPendingIntent = PendingIntent.getActivity(
                 context,
                 117,
@@ -86,6 +84,23 @@ class NotificationUtils {
         fun removeOngoingNotification(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancel(Consts.MainNotificationId.value.toInt())
+        }
+
+        fun restoreTimerSecondsFromOngoingNotification(context: Context) {
+            val ongoingNotificationStartTime = PrefsUtils.getPref(context, PrefParamName.OngoingNotificationStartTime.name)?.toLong() ?: 0L
+            val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
+
+            val timerSecondsEndTime = (ongoingNotificationStartTime / 1000L) + timerSecondsRemaining
+            val currentMillisecondsTimestamp = System.currentTimeMillis()
+
+            var newTimerSecondsRemaining = timerSecondsEndTime - (currentMillisecondsTimestamp / 1000)
+
+            //Corner case?
+            if(newTimerSecondsRemaining < 0) {
+                newTimerSecondsRemaining = 0
+            }
+
+            PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, newTimerSecondsRemaining.toString())
         }
     }
 }

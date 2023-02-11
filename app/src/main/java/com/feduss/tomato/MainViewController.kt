@@ -63,7 +63,7 @@ class MainViewController : ComponentActivity() {
         permissionGranted.postValue(overlayPermissionGranted)
 
         if(intent.getBooleanExtra(Consts.FromOngoingNotification.value, false)) {
-            restoreTimerSecondsFromOngoingNotification()
+            NotificationUtils.restoreTimerSecondsFromOngoingNotification(context)
         }
 
         setContent {
@@ -134,23 +134,6 @@ class MainViewController : ComponentActivity() {
                 }
             }
         }
-    }
-
-    private fun restoreTimerSecondsFromOngoingNotification() {
-        val ongoingNotificationStartTime = PrefsUtils.getPref(context, PrefParamName.OngoingNotificationStartTime.name)?.toLong() ?: 0L
-        val timerSecondsRemaining = PrefsUtils.getPref(context, PrefParamName.SecondsRemaining.name)?.toLong() ?: 0L
-
-        val timerSecondsEndTime = (ongoingNotificationStartTime / 1000L) + timerSecondsRemaining
-        val currentMillisecondsTimestamp = System.currentTimeMillis()
-
-        var newTimerSecondsRemaining = timerSecondsEndTime - (currentMillisecondsTimestamp / 1000)
-
-        //Corner case?
-        if(newTimerSecondsRemaining < 0) {
-            newTimerSecondsRemaining = 0
-        }
-
-        PrefsUtils.setPref(context, PrefParamName.SecondsRemaining.name, newTimerSecondsRemaining.toString())
     }
 
     private fun requestOverlayPermission() {

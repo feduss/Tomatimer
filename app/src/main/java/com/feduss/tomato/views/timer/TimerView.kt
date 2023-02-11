@@ -53,45 +53,39 @@ fun TimerView(context: Context = LocalContext.current,
     }
 
     //Number of the cycle of the tomato timer
-    val totalCycles by remember(Unit) {
-        mutableStateOf(viewModel.totalCycles)
-    }
+    val totalCycles = viewModel.totalCycles
 
     //Current timer index type
-    val currentChipIndex by remember(Unit) {
-        mutableStateOf(viewModel.initialChipIndex)
-    }
+    val currentChipIndex = viewModel.initialChipIndex
 
     //Current timer
     val currentChip = viewModel.chips[currentChipIndex]
 
     //Current tomato cycle
-    val currentCycle by remember(Unit) {
-        mutableStateOf(viewModel.initialCycle)
-    }
+    val currentCycle = viewModel.initialCycle
 
     //Timer state
-    var isTimerActive by remember(currentChip.type) {
+    var isTimerActive by remember {
         mutableStateOf(true)
     }
 
     //Progress of the rounded progress bar
-    var progress by remember(currentChip.type) {
+    var progress by remember {
         mutableStateOf(1.0)
     }
 
     //Progress color of the rounded progress bar
-    var sliderColor by remember(currentChip.type) {
+    var sliderColor by remember {
         mutableStateOf(activeColor)
     }
 
     //Upper title of the screen, that is the name of the timer
-    val title by remember(currentChip.type) {
+    val title by remember {
         mutableStateOf(currentChip.fullTitle)
     }
 
     //Middle label, that shows the minutes:seconds remaining
-    var value by remember(currentChip.type) {
+    var value by remember {
         val time = currentChip.value.toInt()
         val minutes: Int = time/60
         val seconds: Int = time%60
@@ -99,7 +93,7 @@ fun TimerView(context: Context = LocalContext.current,
     }
 
     //Timer total seconds, that never changes, except for a change of timer type or status
-    var maxTimerSeconds by remember(currentChip.type) {
+    var maxTimerSeconds by remember {
         val seconds =
             if (viewModel.initialTimerSeconds > 0)
                 viewModel.initialTimerSeconds else
@@ -108,18 +102,22 @@ fun TimerView(context: Context = LocalContext.current,
     }
 
     //Timer seconds remaining, that changes every seconds when the timer is active
-    //They could change alse if the chip type change, or it is edited after a resume
-    var currentTimerSecondsRemaining by remember(currentChip.type){
+    //They could change also if the chip type change, or it is edited after a resume
+    var currentTimerSecondsRemaining by remember{
         mutableStateOf(0)
     }
 
     //Icon image of the lower button
-    var iconImage by remember(currentChip.type) {
+    var iconImage by remember {
         mutableStateOf(pauseIcon)
     }
 
+    var appWasOnPause by remember {
+        mutableStateOf(false)
+    }
+
     val chipTimerSeconds = currentChip.value.toInt() * 60
-    val timer by remember(currentChip.type, maxTimerSeconds) {
+    val timer by remember(currentChip.type, maxTimerSeconds, appWasOnPause) {
         mutableStateOf(object : CountDownTimer(
             maxTimerSeconds * 1000L, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -151,26 +149,10 @@ fun TimerView(context: Context = LocalContext.current,
                 )
             }
 
-        })
-    }
-
-    //Conditional timer auto-start/pause (change of timer type or timer state)
-    LaunchedEffect(currentChip.type, isTimerActive) {
-        viewModel.setTimerState(context, isTimerActive = isTimerActive)
-        if (isTimerActive) {
-            timer.start()
-        } else {
-            timer.cancel()
-        }
+        }.start())
     }
 
     viewModel.setTimerState(context, isTimerActive = true)
-
-    ComposableLifecycle { _, event ->
-        if (event == Lifecycle.Event.ON_PAUSE) {
-            timer.cancel()
-        }
-    }
 
     BackHandler {
         isAlertDialogVisible = !isAlertDialogVisible
@@ -305,13 +287,15 @@ fun TimerView(context: Context = LocalContext.current,
                         iconImage = if (isTimerActive) playIcon else pauseIcon
                         sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                        if (!isTimerActive) {
-                            //Restore the paused timer with the remaining seconds
-                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
-                        }
-
                         isTimerActive = !isTimerActive
                         viewModel.setTimerState(context, isTimerActive = isTimerActive)
+
+                        if (isTimerActive) {
+                            //Restore the paused timer with the remaining seconds
+                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
+                        } else {
+                            timer.cancel()
+                        }
                     }
                 )
             }
@@ -327,20 +311,4 @@ fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHo
 fun setTimerExpired(context: Context, viewModel: TimerViewModel, openNotification: () -> Unit) {
     viewModel.setTimerState(context, false)
     openNotification()
-}
-
-@Composable
-fun ComposableLifecycle(
-    lifeCycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    onEvent: (LifecycleOwner, Lifecycle.Event) -> Unit
-) {
-    DisposableEffect(lifeCycleOwner) {
-        val observer = LifecycleEventObserver { source, event ->
-            onEvent(source, event)
-        }
-        lifeCycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifeCycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 }

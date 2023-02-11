@@ -1,10 +1,9 @@
 package com.feduss.tomato.views.notification
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
-import android.media.RingtoneManager
-import android.net.Uri
+import android.media.AudioManager
 import android.os.*
 import android.util.Log
 import androidx.activity.compose.BackHandler
@@ -54,19 +53,22 @@ class NotificationViewController : AppCompatActivity() {
             NotificationContent(chipType, currentCycle, chipTitle)
         }
 
-        AlarmUtils.vibrate(context)
+        val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
-        val alarmSound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val mp: MediaPlayer? = MediaPlayer.create(context, alarmSound)
+        when (audio.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> {
+                AlarmUtils.vibrate(context)
+                AlarmUtils.sound(context)
+            }
+            AudioManager.RINGER_MODE_SILENT -> {
 
-        if (mp != null) {
-            mp.start()
-            //mp.stop()
-
-            Handler(Looper.getMainLooper()).postDelayed({
-                mp.release()
-            }, 5000)
+            }
+            AudioManager.RINGER_MODE_VIBRATE -> {
+                AlarmUtils.vibrate(context)
+            }
         }
+
+
     }
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -179,9 +181,8 @@ class NotificationViewController : AppCompatActivity() {
     private fun goToNextTimer(chipType: ChipType?, currentCycle: Int) {
         viewModel.setNextTimerInPrefs(context, chipType, currentCycle)
 
-        val appIntent =
-            Intent(context, MainViewController::class.java)
-        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val appIntent = packageManager.getLaunchIntentForPackage(packageName)
+        appIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(appIntent)
 
         Log.e(

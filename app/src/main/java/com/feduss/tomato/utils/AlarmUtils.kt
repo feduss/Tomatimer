@@ -4,14 +4,15 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.os.VibratorManager
+import android.media.MediaPlayer
+import android.media.RingtoneManager
+import android.net.Uri
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import com.feduss.tomato.enums.Consts
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.receivers.TimerReceiver
+import com.feduss.tomato.views.notification.NotificationViewController
 
 class AlarmUtils {
 
@@ -37,11 +38,6 @@ class AlarmUtils {
             )
 
             val alarmTime = (timerSecondsRemaining * 1000L) + currentMillisecondsTimestamp
-//            alarmManager.setExactAndAllowWhileIdle(
-//                AlarmManager.RTC_WAKEUP,
-//                alarmTime,
-//                pendingIntent
-//            )
 
             val alarmClockInfo = AlarmManager.AlarmClockInfo(alarmTime, null)
             alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
@@ -79,6 +75,18 @@ class AlarmUtils {
                 if (vibrator.hasVibrator()) {
                     vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
                 }
+            }
+        }
+
+        fun sound(context: NotificationViewController) {
+            val alarmSound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val mp: MediaPlayer? = MediaPlayer.create(context, alarmSound)
+
+            if (mp != null) {
+                mp.start()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    mp.release()
+                }, 5000)
             }
         }
     }
