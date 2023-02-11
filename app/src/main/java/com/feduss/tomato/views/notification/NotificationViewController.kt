@@ -181,8 +181,13 @@ class NotificationViewController : AppCompatActivity() {
     private fun goToNextTimer(chipType: ChipType?, currentCycle: Int) {
         viewModel.setNextTimerInPrefs(context, chipType, currentCycle)
 
-        val appIntent = packageManager.getLaunchIntentForPackage(packageName)
-        appIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        var appIntent = packageManager.getLaunchIntentForPackage(packageName)
+
+        if(appIntent == null) {
+           appIntent = Intent(context, MainViewController::class.java)
+        }
+
+        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(appIntent)
 
         Log.e(
