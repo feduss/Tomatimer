@@ -165,6 +165,7 @@ fun TimerView(context: Context = LocalContext.current,
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
+            timer.cancel()
             isTimerActive = false
             Alert(
                 title = {
