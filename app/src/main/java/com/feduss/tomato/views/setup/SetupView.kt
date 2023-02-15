@@ -41,6 +41,7 @@ fun SetupView(context: Context = LocalContext.current,
               navController: NavHostController = rememberSwipeDismissableNavController(),
               viewModel: SetupViewModel = SetupViewModel(ChipDatas.demoList),
               closeApp: () -> Unit = {}) {
+
     //Go to timer screen if there was an active timer
     restoreSavedTimerFlow(context, viewModel, navController)
 

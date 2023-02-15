@@ -1,6 +1,7 @@
 package com.feduss.tomato
 
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -37,6 +38,7 @@ import com.feduss.tomato.utils.NotificationUtils
 import com.feduss.tomato.utils.PrefsUtils
 import com.feduss.tomato.views.MainActivity
 
+
 class MainViewController : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
@@ -44,8 +46,10 @@ class MainViewController : ComponentActivity() {
     private lateinit var context: Context
     private val timerReceiver = TimerReceiver()
 
-    private val permissionGranted = MutableLiveData(false)
-    private var overlayPermissionGranted = false
+    private lateinit var notificationManager: NotificationManager
+
+    //It's true to show the setupView first, then the permission request, if needed
+    private val isOverlayGranted = MutableLiveData(true)
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class)
@@ -55,12 +59,12 @@ class MainViewController : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         context = this
+        notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
         val filter = IntentFilter()
         registerReceiver(timerReceiver, filter)
 
-        overlayPermissionGranted = Settings.canDrawOverlays(this)
-        permissionGranted.postValue(overlayPermissionGranted)
+        isOverlayGranted.postValue(isOverlayPermissionGranted())
 
         if(intent.getBooleanExtra(Consts.FromOngoingNotification.value, false)) {
             NotificationUtils.restoreTimerSecondsFromOngoingNotification(context)
@@ -75,13 +79,13 @@ class MainViewController : ComponentActivity() {
 
                 val color = Color(("#E3BAFF".toColorInt()))
 
-                val arePermissionsGrantedState by permissionGranted.observeAsState()
+                val isOverlayGrantedState by isOverlayGranted.observeAsState()
 
                 Scaffold(
                     modifier = Modifier
                         .width(screenWidth)
                         .height(screenHeight)) {
-                    if (arePermissionsGrantedState == true) {
+                    if (isOverlayGrantedState == true) {
                         MainActivity(
                             context = context,
                             activity = this,
@@ -89,40 +93,13 @@ class MainViewController : ComponentActivity() {
                             chips = viewModel.loadDataFromPrefs(context),
                             startDestination = Section.Setup.baseRoute
                         )
-                    } else if (!overlayPermissionGranted) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black)
-                                .verticalScroll(rememberScrollState())
-                                .padding(8.dp, 32.dp, 8.dp, 16.dp),
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    text = "Per continuare, devi accettare il permesso di overlay. Clicca continua per proseguire.",
-                                    color = Color("#E3BAFF".toColorInt()),
-                                    textAlign = TextAlign.Center
-                                )
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(color, color),
-                                    content = {
-                                        Text(
-                                            text = "Continua",
-                                            color = Color.Black,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    },
-                                    onClick = {
-                                        requestOverlayPermission()
-                                    }
-                                )
-                            }
-                        }
+                    } else if (isOverlayGrantedState == false) {
+                        TextButtonView(
+                            color = color,
+                            text = "Per continuare, devi accettare il permesso di overlay. " +
+                                    "Clicca continua per proseguire.",
+                            onButtonClicked = { requestOverlayPermission() }
+                        )
                     } else {
                         //Placeholder for future usage
                         Box(
@@ -136,6 +113,45 @@ class MainViewController : ComponentActivity() {
         }
     }
 
+    @Composable
+    private fun TextButtonView(color: Color, text: String, onButtonClicked: () -> Unit) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black)
+                    .verticalScroll(rememberScrollState())
+                    .padding(8.dp, 32.dp, 8.dp, 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = text,
+                    color = Color("#E3BAFF".toColorInt()),
+                    textAlign = TextAlign.Center
+                )
+                Button(
+                    colors = ButtonDefaults.buttonColors(color, color),
+                    content = {
+                        Text(
+                            text = "Continua",
+                            color = Color.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    onClick = {
+                        onButtonClicked()
+                    }
+                )
+            }
+        }
+    }
+
     private fun requestOverlayPermission() {
         startActivity(
             Intent(
@@ -144,6 +160,8 @@ class MainViewController : ComponentActivity() {
             )
         )
     }
+
+    private fun isOverlayPermissionGranted() = Settings.canDrawOverlays(this)
 
     override fun onPause() {
         super.onPause()
@@ -162,9 +180,8 @@ class MainViewController : ComponentActivity() {
         AlarmUtils.removeBackgroundAlert(context)
         NotificationUtils.removeOngoingNotification(context)
 
-        if (!overlayPermissionGranted) {
-            overlayPermissionGranted = Settings.canDrawOverlays(this)
-            permissionGranted.postValue(overlayPermissionGranted)
+        if(isOverlayGranted.value == false) {
+            isOverlayGranted.postValue(isOverlayPermissionGranted())
         }
     }
 

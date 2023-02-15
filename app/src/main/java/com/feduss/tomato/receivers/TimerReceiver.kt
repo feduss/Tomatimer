@@ -3,9 +3,8 @@ package com.feduss.tomato.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import com.feduss.tomato.views.notification.NotificationViewController
 import com.feduss.tomato.utils.AlarmUtils
+import com.feduss.tomato.views.notification.NotificationViewController
 
 class TimerReceiver : BroadcastReceiver() {
 

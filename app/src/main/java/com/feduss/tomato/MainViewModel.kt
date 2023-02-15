@@ -17,7 +17,9 @@ open class MainViewModel : ViewModel() {
     fun loadDataFromPrefs(context: Context): List<Chip> {
         for(chip in chips) {
             val loadedValue = PrefsUtils.getPref(context, chip.type.valuePrefKey)
-            if (!loadedValue.isNullOrEmpty()) {
+            if (loadedValue.isNullOrEmpty()) {
+                PrefsUtils.setPref(context, chip.type.valuePrefKey, chip.value)
+            } else {
                 chip.value = loadedValue
             }
         }

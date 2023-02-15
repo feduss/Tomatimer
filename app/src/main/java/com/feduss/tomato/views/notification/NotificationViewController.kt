@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.*
-import android.util.Log
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -53,19 +53,34 @@ class NotificationViewController : AppCompatActivity() {
             NotificationContent(chipType, currentCycle, chipTitle)
         }
 
-        val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val dndStatus = Settings.Global.getInt(contentResolver, "zen_mode")
 
-        when (audio.ringerMode) {
-            AudioManager.RINGER_MODE_NORMAL -> {
-                AlarmUtils.vibrate(context)
-                AlarmUtils.sound(context)
-            }
-            AudioManager.RINGER_MODE_SILENT -> {
+        /*
+            0 - If DnD is off.
+            1 - If DnD is on - Priority Only
+            2 - If DnD is on - Total Silence
+            3 - If DnD is on - Alarms Only
+        */
+        //If dnd is on, check ringerMode
+        //Else, i.e. is active, vibrate
+        if(dndStatus == 0) {
 
+            val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+            when (audio.ringerMode) {
+                AudioManager.RINGER_MODE_NORMAL -> {
+                    AlarmUtils.vibrate(context)
+                    AlarmUtils.sound(context)
+                }
+                AudioManager.RINGER_MODE_SILENT -> {
+
+                }
+                AudioManager.RINGER_MODE_VIBRATE -> {
+                    AlarmUtils.vibrate(context)
+                }
             }
-            AudioManager.RINGER_MODE_VIBRATE -> {
-                AlarmUtils.vibrate(context)
-            }
+        } else {
+            AlarmUtils.vibrate(context)
         }
 
 
@@ -103,74 +118,72 @@ class NotificationViewController : AppCompatActivity() {
                     .width(screenWidth)
                     .height(screenHeight)
             ) {
-                SwipeToDismissBox(onDismissed = {
-                    handleBack(chipType, currentCycle)
-                }) {
-                    Box(
+                SwipeToDismissBox(
+                    onDismissed = {
+                        handleBack(chipType, currentCycle)
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black)
+                ) {
+                    Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.Black),
-                        contentAlignment = Alignment.Center
+                            .background(Color.Black)
+                            .verticalScroll(rememberScrollState())
+                            .padding(24.dp, 32.dp, 24.dp, 16.dp),
+                        verticalArrangement = Arrangement.Top,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black)
-                                .verticalScroll(rememberScrollState())
-                                .padding(24.dp, 32.dp, 24.dp, 16.dp),
-                            verticalArrangement = Arrangement.Top,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = "Timer $chipTitle (ciclo ${currentCycle + 1}) scaduto!",
-                                color = color,
-                                textAlign = TextAlign.Center
+                        Text(
+                            text = "Timer $chipTitle (ciclo ${currentCycle + 1}) scaduto!",
+                            color = color,
+                            textAlign = TextAlign.Center
+                        )
+                        if (chipType == ChipType.LongBreak) {
+                            Button(
+                                colors = ButtonDefaults.buttonColors(color, color),
+                                contentPadding = paddingValues,
+                                content = {
+                                    Text(
+                                        text = "Apri app",
+                                        color = Color.Black,
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                onClick = {
+                                    cancelQueueAndOpenApp()
+                                }
                             )
-                            if (chipType == ChipType.LongBreak) {
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(color, color),
-                                    contentPadding = paddingValues,
-                                    content = {
-                                        Text(
-                                            text = "Apri app",
-                                            color = Color.Black,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    },
-                                    onClick = {
-                                        cancelQueueAndOpenApp()
-                                    }
-                                )
-                            } else {
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(color, color),
-                                    contentPadding = paddingValues,
-                                    content = {
-                                        Text(
-                                            text = "Prossimo timer",
-                                            color = Color.Black,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    },
-                                    onClick = {
-                                        goToNextTimer(chipType, currentCycle)
-                                    }
-                                )
-                                Button(
-                                    colors = ButtonDefaults.buttonColors(color, color),
-                                    contentPadding = paddingValues,
-                                    content = {
-                                        Text(
-                                            text = "Cancella coda",
-                                            color = Color.Black,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    },
-                                    onClick = {
-                                        cancelQueueAndOpenApp()
-                                    }
-                                )
-                            }
+                        } else {
+                            Button(
+                                colors = ButtonDefaults.buttonColors(color, color),
+                                contentPadding = paddingValues,
+                                content = {
+                                    Text(
+                                        text = "Prossimo timer",
+                                        color = Color.Black,
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                onClick = {
+                                    goToNextTimer(chipType, currentCycle)
+                                }
+                            )
+                            Button(
+                                colors = ButtonDefaults.buttonColors(color, color),
+                                contentPadding = paddingValues,
+                                content = {
+                                    Text(
+                                        text = "Cancella coda",
+                                        color = Color.Black,
+                                        textAlign = TextAlign.Center
+                                    )
+                                },
+                                onClick = {
+                                    cancelQueueAndOpenApp()
+                                }
+                            )
                         }
                     }
                 }
@@ -181,21 +194,10 @@ class NotificationViewController : AppCompatActivity() {
     private fun goToNextTimer(chipType: ChipType?, currentCycle: Int) {
         viewModel.setNextTimerInPrefs(context, chipType, currentCycle)
 
-        var appIntent = packageManager.getLaunchIntentForPackage(packageName)
-
-        if(appIntent == null) {
-           appIntent = Intent(context, MainViewController::class.java)
-        }
-
-        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(appIntent)
-
-        Log.e(
-            "TOMATO:",
-            "Open app and go to next timer from notification activity"
-        )
-
+        val appIntent = Intent(context, MainViewController::class.java)
+        startApp(appIntent)
         finish()
+
     }
 
     private fun handleBack(chipType: ChipType?, currentCycle: Int) {
@@ -212,11 +214,13 @@ class NotificationViewController : AppCompatActivity() {
         NotificationUtils.removeOngoingNotification(context)
 
         val appIntent = Intent(context, MainViewController::class.java)
-        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(appIntent)
-
-        Log.e("TOMATO:", "Cancel timers queue from notification activity")
+        startApp(appIntent)
 
         finish()
+    }
+
+    private fun startApp(appIntent: Intent) {
+        appIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(appIntent)
     }
 }
