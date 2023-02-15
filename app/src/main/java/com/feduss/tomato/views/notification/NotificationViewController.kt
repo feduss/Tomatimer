@@ -95,16 +95,13 @@ class NotificationViewController : AppCompatActivity() {
         currentCycle: Int = 0,
         chipTitle: String = "Pomodoro"
     ) {
+        val color = Color(("#E3BAFF".toColorInt()))
+
         BackHandler {
             handleBack(chipType, currentCycle)
         }
 
         MaterialTheme {
-            val configuration = LocalConfiguration.current
-            val screenHeight = configuration.screenHeightDp.dp
-            val screenWidth = configuration.screenWidthDp.dp
-
-            val color = Color(("#E3BAFF".toColorInt()))
 
             val paddingValues = PaddingValues(
                 start = 16.dp,
@@ -114,9 +111,7 @@ class NotificationViewController : AppCompatActivity() {
             )
 
             Scaffold(
-                modifier = Modifier
-                    .width(screenWidth)
-                    .height(screenHeight)
+                modifier = Modifier.fillMaxSize()
             ) {
                 SwipeToDismissBox(
                     onDismissed = {

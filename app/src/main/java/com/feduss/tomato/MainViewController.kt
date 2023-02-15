@@ -70,21 +70,16 @@ class MainViewController : ComponentActivity() {
             NotificationUtils.restoreTimerSecondsFromOngoingNotification(context)
         }
 
+        val color = Color(("#E3BAFF".toColorInt()))
+
         setContent {
             MaterialTheme {
                 navController = rememberSwipeDismissableNavController()
-                val configuration = LocalConfiguration.current
-                val screenHeight = configuration.screenHeightDp.dp
-                val screenWidth = configuration.screenWidthDp.dp
-
-                val color = Color(("#E3BAFF".toColorInt()))
 
                 val isOverlayGrantedState by isOverlayGranted.observeAsState()
 
                 Scaffold(
-                    modifier = Modifier
-                        .width(screenWidth)
-                        .height(screenHeight)) {
+                    modifier = Modifier.fillMaxSize()) {
                     if (isOverlayGrantedState == true) {
                         MainActivity(
                             context = context,
