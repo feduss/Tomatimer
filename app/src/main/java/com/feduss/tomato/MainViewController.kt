@@ -79,7 +79,8 @@ class MainViewController : ComponentActivity() {
                 val isOverlayGrantedState by isOverlayGranted.observeAsState()
 
                 Scaffold(
-                    modifier = Modifier.fillMaxSize()) {
+                    modifier = Modifier.fillMaxSize()
+                ) {
                     if (isOverlayGrantedState == true) {
                         MainActivity(
                             context = context,

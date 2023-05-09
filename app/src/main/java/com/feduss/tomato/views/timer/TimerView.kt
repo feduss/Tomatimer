@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,7 +21,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
@@ -32,16 +30,20 @@ import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.feduss.tomato.R
+import com.feduss.tomato.models.Chip
 import com.feduss.tomato.provider.ChipDatas
+import java.util.*
 
 
 @OptIn(ExperimentalUnitApi::class)
 @Preview
 @Composable
-fun TimerView(context: Context = LocalContext.current,
-              navController: NavHostController = rememberSwipeDismissableNavController(),
-              viewModel: TimerViewModel = TimerViewModel(ChipDatas.demoList),
-              openNotification: () -> Unit = {}
+fun TimerView(
+    context: Context = LocalContext.current,
+    navController: NavHostController = rememberSwipeDismissableNavController(),
+    viewModel: TimerViewModel = TimerViewModel(ChipDatas.demoList),
+    onTimerSet: (String) -> Unit = {},
+    openNotification: () -> Unit = {},
 ) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
@@ -152,6 +154,7 @@ fun TimerView(context: Context = LocalContext.current,
         }.start())
     }
 
+    updateTimeText(currentChip, onTimerSet)
     viewModel.setTimerState(context, isTimerActive = true)
 
     BackHandler {
@@ -165,6 +168,7 @@ fun TimerView(context: Context = LocalContext.current,
 
     SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
         if (isAlertDialogVisible) {
+            onTimerSet("")
             timer.cancel()
             isTimerActive = false
             Alert(
@@ -200,6 +204,7 @@ fun TimerView(context: Context = LocalContext.current,
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                             isAlertDialogVisible = false
                             isTimerActive = true
+                            updateTimeText(currentChip, onTimerSet)
                         }
                     )
                 },
@@ -236,7 +241,7 @@ fun TimerView(context: Context = LocalContext.current,
                 progress = progress.toFloat(),
                 modifier = Modifier.fillMaxSize(),
                 color = sliderColor,
-                strokeWidth = 8.dp
+                strokeWidth = 4.dp
             )
             Column(
                 modifier = Modifier
@@ -293,6 +298,7 @@ fun TimerView(context: Context = LocalContext.current,
 
                         if (isTimerActive) {
                             //Restore the paused timer with the remaining seconds
+                            updateTimeText(currentChip, onTimerSet)
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                         } else {
                             timer.cancel()
@@ -302,6 +308,15 @@ fun TimerView(context: Context = LocalContext.current,
             }
         }
     }
+}
+
+private fun updateTimeText(
+    currentChip: Chip,
+    onTimerSet: (String) -> Unit
+) {
+    val calendar = Calendar.getInstance()
+    calendar.add(Calendar.MINUTE, currentChip.value.toInt())
+    onTimerSet("${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}")
 }
 
 fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHostController){

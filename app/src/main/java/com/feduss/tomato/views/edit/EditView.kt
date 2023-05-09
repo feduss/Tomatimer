@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -23,6 +26,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavController
 import androidx.wear.compose.material.*
@@ -78,7 +82,7 @@ fun EditView(
         progress = progress.toFloat(),
         modifier = Modifier.fillMaxSize(),
         color = color,
-        strokeWidth = 8.dp
+        strokeWidth = 4.dp
     )
     Column(
         modifier = Modifier
@@ -91,35 +95,55 @@ fun EditView(
             color = color
         )
 
-        Picker(
-            state = state,
-            contentDescription = contentDescription,
-            readOnly = false,
-            readOnlyLabel = { Text(
-                                    text = viewModel.chip.fullTitle,
-                                    color = Color.White
-                                )},
-            onSelected = {},
+        ConstraintLayout(
             modifier = Modifier
-                .onRotaryScrollEvent {
-                    coroutineScope.launch {
-                        if (it.verticalScrollPixels > 0f) {
-                            state.scrollToOption(state.selectedOption + 1)
-                        } else {
-                            state.scrollToOption(state.selectedOption - 1)
-                        }
-                        performHapticFeedback(haptic)
-                    }
-                    true
-                }
                 .fillMaxHeight()
                 .weight(1f)
-                .focusRequester(focusRequester)
-                .focusable(),
-            separation = 4.dp,
         ) {
+            val (picker, unitLabel) = createRefs()
+
+            Picker(
+                state = state,
+                contentDescription = contentDescription,
+                readOnly = false,
+                readOnlyLabel = { Text(
+                    text = viewModel.chip.fullTitle,
+                    color = Color.White
+                )},
+                onSelected = {},
+                modifier = Modifier
+                    .onRotaryScrollEvent {
+                        coroutineScope.launch {
+                            if (it.verticalScrollPixels > 0f) {
+                                state.scrollToOption(state.selectedOption + 1)
+                            } else {
+                                state.scrollToOption(state.selectedOption - 1)
+                            }
+                            performHapticFeedback(haptic)
+                        }
+                        true
+                    }
+                    .focusRequester(focusRequester)
+                    .focusable()
+                    .constrainAs(picker) {
+                        centerHorizontallyTo(parent)
+                        centerVerticallyTo(parent)
+                    },
+                separation = 4.dp,
+            ) {
+                Text(
+                    text = items[it].toString(),
+                    color = color
+                )
+            }
+
             Text(
-                text = items[it].toString(),
+                modifier = Modifier
+                    .constrainAs(unitLabel) {
+                      centerVerticallyTo(parent)
+                      absoluteLeft.linkTo(picker.absoluteRight, margin = 4.dp)
+                    },
+                text = viewModel.chip.unit,
                 color = color
             )
         }

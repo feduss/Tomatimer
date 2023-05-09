@@ -12,14 +12,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.navigation.NavHostController
@@ -34,13 +32,19 @@ import com.feduss.tomato.enums.OptionalParams
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.provider.ChipDatas
 import com.feduss.tomato.views.ChipView
+import com.google.android.horologist.compose.layout.ScalingLazyColumn
+import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
+import com.google.android.horologist.compose.navscaffold.ScrollableScaffoldContext
 
-@Preview
+@OptIn(ExperimentalHorologistComposeLayoutApi::class)
 @Composable
-fun SetupView(context: Context = LocalContext.current,
-              navController: NavHostController = rememberSwipeDismissableNavController(),
-              viewModel: SetupViewModel = SetupViewModel(ChipDatas.demoList),
-              closeApp: () -> Unit = {}) {
+fun SetupView(
+    context: Context = LocalContext.current,
+    navController: NavHostController = rememberSwipeDismissableNavController(),
+    viewModel: SetupViewModel = SetupViewModel(ChipDatas.demoList),
+    scrollableScaffoldContext: ScrollableScaffoldContext,
+    closeApp: () -> Unit = {}
+) {
 
     //Go to timer screen if there was an active timer
     restoreSavedTimerFlow(context, viewModel, navController)
@@ -125,53 +129,62 @@ fun SetupView(context: Context = LocalContext.current,
 
         }
         else {
-            Column(
-                Modifier
-                    .padding(32.dp, 16.dp, 32.dp, 8.dp)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            val chipHeight = 64
+            val rowNumber = viewModel.chips.count() / 2
+            val verticalChipsSpacing = 8
+            val scrollHeight = (chipHeight * rowNumber) + verticalChipsSpacing
+            ScalingLazyColumn(
+                modifier = Modifier
+                    .padding(16.dp, 0.dp, 16.dp, 0.dp),
+                columnState = scrollableScaffoldContext.columnState
             ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    contentPadding = PaddingValues(0.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(viewModel.chips) { chip ->
-                        ChipView(
-                            chip = chip,
-                            tag = chip.type.tag,
-                            fontSize = 10f,
-                            onChipClicked = { tag ->
-                                viewModel.userHasSelectedChip(tag.toInt())
-                                val args = listOf(tag)
-                                navController.navigate(Section.Edit.withArgs(args))
-                            }
-                        )
+                item() {
+                    LazyVerticalGrid(
+                        modifier = Modifier.height(scrollHeight.dp),
+                        columns = GridCells.Fixed(2),
+                        contentPadding = PaddingValues(0.dp),
+                        verticalArrangement = Arrangement.spacedBy(verticalChipsSpacing.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(viewModel.chips) { chip ->
+                            ChipView(
+                                chip = chip,
+                                tag = chip.type.tag,
+                                fontSize = 10f,
+                                chipHeight = chipHeight,
+                                onChipClicked = { tag ->
+                                    viewModel.userHasSelectedChip(tag.toInt())
+                                    val args = listOf(tag)
+                                    navController.navigate(Section.Edit.withArgs(args))
+                                }
+                            )
+                        }
                     }
                 }
-                val color = Color(("#E3BAFF".toColorInt()))
-                CompactButton(
-                    modifier = Modifier
-                        .width(32.dp)
-                        .aspectRatio(1f)
-                        .background(
-                            color = color,
-                            shape = CircleShape
-                        ),
-                    colors = ButtonDefaults.primaryButtonColors(color, color),
-                    content = {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_24dp),
-                            contentDescription = "Play icon",
-                            tint = Color.Black
-                        )
-                    },
-                    onClick = {
-                        navController.navigate(Section.Timer.baseRoute)
-                    }
-                )
+
+                item {
+                    val color = Color(("#E3BAFF".toColorInt()))
+                    CompactButton(
+                        modifier = Modifier
+                            .width(32.dp)
+                            .aspectRatio(1f)
+                            .background(
+                                color = color,
+                                shape = CircleShape
+                            ),
+                        colors = ButtonDefaults.primaryButtonColors(color, color),
+                        content = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_24dp),
+                                contentDescription = "Play icon",
+                                tint = Color.Black
+                            )
+                        },
+                        onClick = {
+                            navController.navigate(Section.Timer.baseRoute)
+                        }
+                    )
+                }
             }
         }
     }

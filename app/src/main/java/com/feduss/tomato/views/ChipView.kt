@@ -1,10 +1,7 @@
 package com.feduss.tomato.views
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -20,12 +17,15 @@ import androidx.core.graphics.toColorInt
 import com.feduss.tomato.models.Chip
 import com.feduss.tomato.provider.ChipProvider
 
-@OptIn(ExperimentalUnitApi::class)
 @Preview
 @Composable
-fun ChipView(@PreviewParameter(ChipProvider::class) chip: Chip, tag: Int = 0,
-             fontSize: Float = 10f, onChipClicked: (String) -> Unit = {}) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
+fun ChipView(
+    @PreviewParameter(ChipProvider::class) chip: Chip, tag: Int = 0,
+    fontSize: Float = 10f, chipHeight: Int = 64, onChipClicked: (String) -> Unit = {}
+) {
+    Column(
+        modifier = Modifier.height(chipHeight.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center) {
         Button(
             modifier = Modifier.aspectRatio(1f),
