@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.os.SystemClock
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.wear.ongoing.OngoingActivity
 import androidx.wear.ongoing.Status
@@ -52,7 +54,8 @@ class NotificationUtils {
                 Consts.MainChannelId.value
             )
             .setContentTitle(timerName)
-            .setSmallIcon(R.drawable.ic_timer_24dp_test)
+            .setSmallIcon(R.drawable.ic_notification_black_white_2)
+            .setColor(Color.Red.toArgb())
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setOngoing(true)
 
@@ -68,10 +71,10 @@ class NotificationUtils {
                     Consts.MainNotificationId.value.toInt(),
                     notificationBuilder
                 )
-                    .setStaticIcon(R.drawable.ic_timer_24dp_test)
-                    .setTouchIntent(appPendingIntent)
-                    .setStatus(ongoingActivityStatus)
-                    .build()
+                .setStaticIcon(R.drawable.ic_notification_black_white_2)
+                .setTouchIntent(appPendingIntent)
+                .setStatus(ongoingActivityStatus)
+                .build()
 
             ongoingActivity.apply(context.applicationContext)
 
