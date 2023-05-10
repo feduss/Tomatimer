@@ -54,7 +54,7 @@ class NotificationUtils {
                 Consts.MainChannelId.value
             )
             .setContentTitle(timerName)
-            .setSmallIcon(R.drawable.ic_notification_black_white_2)
+            .setSmallIcon(R.drawable.ic_notification_black_white)
             .setColor(Color.Red.toArgb())
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setOngoing(true)
@@ -71,7 +71,7 @@ class NotificationUtils {
                     Consts.MainNotificationId.value.toInt(),
                     notificationBuilder
                 )
-                .setStaticIcon(R.drawable.ic_notification_black_white_2)
+                .setStaticIcon(R.drawable.ic_notification_black_white)
                 .setTouchIntent(appPendingIntent)
                 .setStatus(ongoingActivityStatus)
                 .build()
