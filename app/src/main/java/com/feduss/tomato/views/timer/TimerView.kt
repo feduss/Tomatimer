@@ -316,7 +316,11 @@ private fun updateTimeText(
 ) {
     val calendar = Calendar.getInstance()
     calendar.add(Calendar.MINUTE, currentChip.value.toInt())
-    onTimerSet("${calendar.get(Calendar.HOUR_OF_DAY)}:${calendar.get(Calendar.MINUTE)}")
+
+    val calendarHour = calendar.get(Calendar.HOUR_OF_DAY)
+    var calendarMinutes = calendar.get(Calendar.MINUTE)
+    val minutes = if (calendarMinutes < 10) "0$calendarMinutes" else calendarMinutes
+    onTimerSet("$calendarHour:$minutes")
 }
 
 fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHostController){
