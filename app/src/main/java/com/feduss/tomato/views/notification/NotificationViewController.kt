@@ -19,13 +19,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.feduss.tomato.MainViewController
+import com.feduss.tomato.R
 import com.feduss.tomato.enums.ChipType
 import com.feduss.tomato.enums.PrefParamName
 import com.feduss.tomato.utils.AlarmUtils
@@ -131,7 +132,7 @@ class NotificationViewController : AppCompatActivity() {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Timer $chipTitle (ciclo ${currentCycle + 1}) scaduto!",
+                            text = stringResource(id = R.string.timer_expired_text, chipTitle, currentCycle + 1),
                             color = color,
                             textAlign = TextAlign.Center
                         )
@@ -141,7 +142,7 @@ class NotificationViewController : AppCompatActivity() {
                                 contentPadding = paddingValues,
                                 content = {
                                     Text(
-                                        text = "Apri app",
+                                        text = stringResource(R.string.notification_open_app_action),
                                         color = Color.Black,
                                         textAlign = TextAlign.Center
                                     )
@@ -156,7 +157,7 @@ class NotificationViewController : AppCompatActivity() {
                                 contentPadding = paddingValues,
                                 content = {
                                     Text(
-                                        text = "Prossimo timer",
+                                        text = stringResource(R.string.notification_next_timer_action),
                                         color = Color.Black,
                                         textAlign = TextAlign.Center
                                     )
@@ -170,7 +171,7 @@ class NotificationViewController : AppCompatActivity() {
                                 contentPadding = paddingValues,
                                 content = {
                                     Text(
-                                        text = "Cancella coda",
+                                        text = stringResource(R.string.notification_delete_timer_queue_action),
                                         color = Color.Black,
                                         textAlign = TextAlign.Center
                                     )

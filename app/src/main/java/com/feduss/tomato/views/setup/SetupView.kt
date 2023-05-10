@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -71,7 +72,7 @@ fun SetupView(
             Alert(
                 title = {
                     Text(
-                        text = "Vuoi chiudere l'app?",
+                        text = stringResource(R.string.close_app_dialog_text),
                         textAlign = TextAlign.Center,
                         color = Color.White
                     )

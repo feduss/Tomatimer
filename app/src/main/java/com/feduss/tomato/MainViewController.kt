@@ -21,7 +21,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
@@ -92,8 +92,7 @@ class MainViewController : ComponentActivity() {
                     } else if (isOverlayGrantedState == false) {
                         TextButtonView(
                             color = color,
-                            text = "Per continuare, devi accettare il permesso di overlay. " +
-                                    "Clicca continua per proseguire.",
+                            text = getString(R.string.overlay_permission_ratio),
                             onButtonClicked = { requestOverlayPermission() }
                         )
                     } else {
@@ -135,7 +134,7 @@ class MainViewController : ComponentActivity() {
                     colors = ButtonDefaults.buttonColors(color, color),
                     content = {
                         Text(
-                            text = "Continua",
+                            text = stringResource(R.string.continue_button),
                             color = Color.Black,
                             textAlign = TextAlign.Center
                         )

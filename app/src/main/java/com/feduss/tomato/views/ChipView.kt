@@ -43,7 +43,7 @@ fun ChipView(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center) {
                 Text(
-                    chip.shortTitle,
+                    chip.shortTitle.asString(),
                     color = Color(("#E3BAFF".toColorInt())),
                     fontSize = TextUnit(fontSize, TextUnitType.Sp),
                     textAlign = TextAlign.Center

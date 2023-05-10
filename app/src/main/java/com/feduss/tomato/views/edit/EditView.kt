@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -14,7 +12,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.createRefs
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -91,7 +88,7 @@ fun EditView(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = viewModel.chip.fullTitle,
+            text = viewModel.chip.fullTitle.asString(),
             color = color
         )
 
@@ -106,10 +103,12 @@ fun EditView(
                 state = state,
                 contentDescription = contentDescription,
                 readOnly = false,
-                readOnlyLabel = { Text(
-                    text = viewModel.chip.fullTitle,
+                readOnlyLabel = {
+                    Text(
+                    text = viewModel.chip.fullTitle.asString(),
                     color = Color.White
-                )},
+                    )
+                },
                 onSelected = {},
                 modifier = Modifier
                     .onRotaryScrollEvent {
