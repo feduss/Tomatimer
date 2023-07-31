@@ -33,11 +33,12 @@ import com.feduss.tomato.enums.OptionalParams
 import com.feduss.tomato.enums.Section
 import com.feduss.tomato.provider.ChipDatas
 import com.feduss.tomato.views.ChipView
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
 import com.google.android.horologist.compose.navscaffold.ScrollableScaffoldContext
 
-@OptIn(ExperimentalHorologistComposeLayoutApi::class)
+@OptIn(ExperimentalHorologistComposeLayoutApi::class, ExperimentalHorologistApi::class)
 @Composable
 fun SetupView(
     context: Context = LocalContext.current,

@@ -31,13 +31,14 @@ import com.feduss.tomato.views.setup.SetupViewModelFactory
 import com.feduss.tomato.views.timer.TimerView
 import com.feduss.tomato.views.timer.TimerViewModel
 import com.feduss.tomato.views.timer.TimerViewModelFactory
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.navscaffold.ExperimentalHorologistComposeLayoutApi
 import com.google.android.horologist.compose.navscaffold.WearNavScaffold
 import com.google.android.horologist.compose.navscaffold.scrollable
 import java.util.*
 import kotlin.system.exitProcess
 
-@OptIn(ExperimentalHorologistComposeLayoutApi::class)
+@OptIn(ExperimentalHorologistComposeLayoutApi::class, ExperimentalHorologistApi::class)
 @Composable
 fun MainActivity(
     context: Context,

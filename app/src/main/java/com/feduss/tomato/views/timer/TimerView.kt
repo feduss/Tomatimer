@@ -162,7 +162,7 @@ fun TimerView(
         }.start())
     }
 
-    updateTimeText(currentChip, onTimerSet)
+    updateTimeText(currentTimerSecondsRemaining, onTimerSet)
     viewModel.setTimerState(context, isTimerActive = true)
 
     BackHandler {
@@ -212,7 +212,7 @@ fun TimerView(
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
                             isAlertDialogVisible = false
                             isTimerActive = true
-                            updateTimeText(currentChip, onTimerSet)
+                            updateTimeText(currentTimerSecondsRemaining, onTimerSet)
                         }
                     )
                 },
@@ -306,8 +306,8 @@ fun TimerView(
 
                         if (isTimerActive) {
                             //Restore the paused timer with the remaining seconds
-                            updateTimeText(currentChip, onTimerSet)
                             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
+                            updateTimeText(maxTimerSeconds, onTimerSet)
                         } else {
                             timer.cancel()
                         }
@@ -319,14 +319,14 @@ fun TimerView(
 }
 
 private fun updateTimeText(
-    currentChip: Chip,
+    secondsRemaining: Int,
     onTimerSet: (String) -> Unit
 ) {
     val calendar = Calendar.getInstance()
-    calendar.add(Calendar.MINUTE, currentChip.value.toInt())
+    calendar.add(Calendar.SECOND, secondsRemaining)
 
     val calendarHour = calendar.get(Calendar.HOUR_OF_DAY)
-    var calendarMinutes = calendar.get(Calendar.MINUTE)
+    val calendarMinutes = calendar.get(Calendar.MINUTE)
     val minutes = if (calendarMinutes < 10) "0$calendarMinutes" else calendarMinutes
     onTimerSet("$calendarHour:$minutes")
 }
