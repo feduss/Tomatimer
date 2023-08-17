@@ -12,6 +12,6 @@ sealed class Consts(val value: String) {
     object NewValueKey: Consts("NewValue")
     object FromOngoingNotification: Consts("FromOngoingNotification")
     object NotificationActionIntentExtra: Consts("notificationAction")
-    object NotificationActionIntentExtraNextTimer: Consts("nexttimer")
+    object NotificationActionIntentExtraNextTimer: Consts("nextTimer")
     object NotificationActionIntentExtraCancelQueue: Consts("cancelQueue")
 }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -84,7 +85,7 @@ fun EditView(
 
     //Progress of the rounded progress bar
     val progress by remember(contentDescription) {
-        mutableStateOf((state.selectedOption + 1).toDouble() / numbOptions)
+        mutableDoubleStateOf((state.selectedOption + 1).toDouble() / numbOptions)
     }
 
     CircularProgressIndicator(
@@ -104,57 +105,37 @@ fun EditView(
             color = color
         )
 
-        ConstraintLayout(
+        Picker(
+            state = state,
+            contentDescription = contentDescription,
+            readOnly = false,
+            readOnlyLabel = {
+                Text(
+                    text = viewModel.chip.fullTitle,
+                    color = Color.White
+                )
+            },
+            onSelected = {},
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f)
-        ) {
-            val (picker, unitLabel) = createRefs()
-
-            Picker(
-                state = state,
-                contentDescription = contentDescription,
-                readOnly = false,
-                readOnlyLabel = {
-                    Text(
-                    text = viewModel.chip.fullTitle,
-                    color = Color.White
-                    )
-                },
-                onSelected = {},
-                modifier = Modifier
-                    .onRotaryScrollEvent {
-                        coroutineScope.launch {
-                            if (it.verticalScrollPixels > 0f) {
-                                state.scrollToOption(state.selectedOption + 1)
-                            } else {
-                                state.scrollToOption(state.selectedOption - 1)
-                            }
-                            performHapticFeedback(haptic)
+                .onRotaryScrollEvent {
+                    coroutineScope.launch {
+                        if (it.verticalScrollPixels > 0f) {
+                            state.scrollToOption(state.selectedOption + 1)
+                        } else {
+                            state.scrollToOption(state.selectedOption - 1)
                         }
-                        true
+                        performHapticFeedback(haptic)
                     }
-                    .focusRequester(focusRequester)
-                    .focusable()
-                    .constrainAs(picker) {
-                        centerHorizontallyTo(parent)
-                        centerVerticallyTo(parent)
-                    },
-                separation = 4.dp,
-            ) {
-                Text(
-                    text = items[it].toString(),
-                    color = color
-                )
-            }
-
+                    true
+                }
+                .focusRequester(focusRequester)
+                .focusable(),
+            separation = 4.dp,
+        ) {
             Text(
-                modifier = Modifier
-                    .constrainAs(unitLabel) {
-                      centerVerticallyTo(parent)
-                      absoluteLeft.linkTo(picker.absoluteRight, margin = 4.dp)
-                    },
-                text = viewModel.chip.unit,
+                text = "${items[it]} ${viewModel.chip.unit}".trim(),
                 color = color
             )
         }

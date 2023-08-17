@@ -5,7 +5,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomato.hilt.ViewModelFactory
 import com.feduss.tomato.view.MainViewController
-import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.feduss.tomato.viewmodel.timer.TimerViewModel
 import dagger.hilt.android.EntryPointAccessors
 

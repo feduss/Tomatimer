@@ -16,6 +16,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,7 +83,7 @@ fun TimerView(
 
     //Progress of the rounded progress bar
     var progress by remember {
-        mutableStateOf(1.0)
+        mutableDoubleStateOf(1.0)
     }
 
     //Progress color of the rounded progress bar
@@ -108,13 +110,13 @@ fun TimerView(
             if (viewModel.initialTimerSeconds > 0)
                 viewModel.initialTimerSeconds else
                 currentChip.value.toInt() * 60
-        mutableStateOf(seconds)
+        mutableIntStateOf(seconds)
     }
 
     //Timer seconds remaining, that changes every seconds when the timer is active
     //They could change also if the chip type change, or it is edited after a resume
     var currentTimerSecondsRemaining by remember{
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     //Icon image of the lower button

@@ -3,19 +3,13 @@ package com.feduss.tomato.viewmodel.setup
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.feduss.tomatimer.entity.UIText
-import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils
-import com.feduss.tomato.R
-import com.feduss.tomato.viewmodel.edit.EditViewModel
-import com.feduss.tomato.viewmodel.timer.TimerViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import java.util.*
-import javax.inject.Inject
 
 class SetupViewModel @AssistedInject constructor(
     @Assisted("chips") chips: List<Chip>

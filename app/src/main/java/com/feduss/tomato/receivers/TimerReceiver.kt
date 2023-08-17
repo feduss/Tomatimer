@@ -6,14 +6,13 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.AudioManager
-import android.provider.Settings
 import androidx.core.app.NotificationCompat
-import com.feduss.tomato.R
 import com.feduss.tomatimer.entity.enums.Consts
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.utils.AlarmUtils
 import com.feduss.tomatimer.utils.PrefsUtils
+import com.feduss.tomato.R
+import com.feduss.tomato.view.MainViewController
 import com.feduss.tomato.view.notification.NotificationViewController
 
 class TimerReceiver : BroadcastReceiver() {
@@ -24,26 +23,27 @@ class TimerReceiver : BroadcastReceiver() {
         AlarmUtils.removeBackgroundAlert(context, TimerReceiver::class.java)
 
         val fullScreenIntent = Intent(context, NotificationViewController::class.java)
-        val fullScreenPendingIntent = PendingIntent.getActivity(context, 0,
+        val fullScreenPendingIntent = PendingIntent.getActivity(context, 111,
             fullScreenIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val nextTimerIntent = Intent(context, NotificationViewController::class.java)
+        val nextTimerIntent = Intent(context, MainViewController::class.java)
         nextTimerIntent.putExtra(
             Consts.NotificationActionIntentExtra.value,
             Consts.NotificationActionIntentExtraNextTimer.value
         )
-        val nextTimerPendingIntent = PendingIntent.getActivity(context, 0,
+        val nextTimerPendingIntent = PendingIntent.getActivity(context, 222,
             nextTimerIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val cancelQueueIntent = Intent(context, NotificationViewController::class.java)
+        val cancelQueueIntent = Intent(context, MainViewController::class.java)
         cancelQueueIntent.putExtra(
             Consts.NotificationActionIntentExtra.value,
             Consts.NotificationActionIntentExtraCancelQueue.value
         )
-        val cancelQueuePendingIntent = PendingIntent.getActivity(context, 0,
+        val cancelQueuePendingIntent = PendingIntent.getActivity(context, 333,
             cancelQueueIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as NotificationManager
 
         val channel = NotificationChannel(
             Consts.SubChannelId.value,
@@ -52,10 +52,12 @@ class TimerReceiver : BroadcastReceiver() {
         )
         notificationManager.createNotificationChannel(channel)
 
-        val chipTitle = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "NoTitle"
-        val currentCycle = PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
+        val chipTitle = PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name)
+            ?: "NoTitle"
+        val currentCycle = PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt()
+            ?: -1
 
-        // Screen ok -> heads up notification with two actions and relative pending intens
+        // Screen ok -> heads up notification with two actions and relative pending intents
         // Screen off -> fullScreenPendingIntent
         val notificationBuilder =
             NotificationCompat.Builder(context, Consts.SubChannelId.value)

@@ -7,7 +7,6 @@ import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils
-import com.feduss.tomato.viewmodel.edit.EditViewModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

@@ -50,7 +50,7 @@ open class MainViewModel @Inject constructor(
         for(chip in defaultChips) {
             val loadedValue = PrefsUtils.getPref(context, chip.type.valuePrefKey)
             if (loadedValue.isNullOrEmpty()) {
-                PrefsUtils.setPref(context, chip.type.valuePrefKey, "0.2"/*chip.value*/)
+                PrefsUtils.setPref(context, chip.type.valuePrefKey, chip.value)
             } else {
                 chip.value = loadedValue
             }

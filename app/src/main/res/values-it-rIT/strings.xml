@@ -4,8 +4,8 @@
     <string name="tomato_timer_name">Pomodoro</string>
     <string name="short_break_short_name">P. breve</string>
     <string name="short_break_full_name">Pausa breve</string>
-    <string name="cycle_number_short_name">Num. cicli</string>
-    <string name="cycle_number_full_name">Numero cicli</string>
+    <string name="cycle_number_short_name">Cicli</string>
+    <string name="cycle_number_full_name">Cicli</string>
     <string name="long_break_short_name">P. lunga</string>
     <string name="long_break_full_name">Pausa lunga</string>
     <string name="stop_timer_question">Vuoi terminare il timer?</string>
@@ -14,7 +14,4 @@
     <string name="notification_open_app_action">Apri app</string>
     <string name="notification_next_timer_action">Prossimo timer</string>
     <string name="notification_delete_timer_queue_action">Cancella coda</string>
-    <string name="overlay_permission_ratio">Per continuare, devi accettare il permesso di overlay. Clicca continua per proseguire.</string>
-    <string name="continue_button">Continua</string>
-    <string name="close_app_dialog_text">Vuoi chiudere l\'app?</string>
 </resources>

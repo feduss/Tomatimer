@@ -3,9 +3,11 @@ package com.feduss.tomato.view.setup
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
@@ -59,12 +62,6 @@ fun SetupView(
         }
     }
 
-
-    val chipHeight = 64
-    val rowNumber = viewModel.chips.count() / 2
-    val verticalChipsSpacing = 8
-    val scrollHeight = (chipHeight * rowNumber) + verticalChipsSpacing
-
     val versionName = BuildConfig.VERSION_NAME
     val versionCode = BuildConfig.VERSION_CODE
 
@@ -73,28 +70,16 @@ fun SetupView(
             .padding(16.dp, 0.dp, 16.dp, 0.dp),
         columnState = scrollableScaffoldContext.columnState
     ) {
-        item {
-            LazyVerticalGrid(
-                modifier = Modifier.height(scrollHeight.dp),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(0.dp),
-                verticalArrangement = Arrangement.spacedBy(verticalChipsSpacing.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(viewModel.chips) { chip ->
-                    ChipView(
-                        chip = chip,
-                        tag = chip.type.tag,
-                        fontSize = 10f,
-                        chipHeight = chipHeight,
-                        onChipClicked = { tag ->
-                            viewModel.userHasSelectedChip(tag.toInt())
-                            val args = listOf(tag)
-                            navController.navigate(Section.Edit.withArgs(args))
-                        }
-                    )
+        items(viewModel.chips) { chip ->
+            ChipView(
+                chip = chip,
+                tag = chip.type.tag,
+                onChipClicked = { tag ->
+                    viewModel.userHasSelectedChip(tag.toInt())
+                    val args = listOf(tag)
+                    navController.navigate(Section.Edit.withArgs(args))
                 }
-            }
+            )
         }
 
         item {

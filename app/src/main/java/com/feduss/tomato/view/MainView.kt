@@ -33,7 +33,6 @@ import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.navscaffold.WearNavScaffold
 import com.google.android.horologist.compose.navscaffold.scrollable
 import java.util.*
-import kotlin.system.exitProcess
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
