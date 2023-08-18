@@ -14,4 +14,6 @@
     <string name="notification_open_app_action">Open app</string>
     <string name="notification_next_timer_action">Next timer</string>
     <string name="notification_delete_timer_queue_action">Delete queue</string>
+    <string name="overlay_permission_ratio">To use the app, you must grant overlay permission. Tap next to open the settings.</string>
+    <string name="continue_button">Next</string>
 </resources>
