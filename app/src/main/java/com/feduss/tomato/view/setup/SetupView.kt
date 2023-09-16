@@ -3,20 +3,17 @@ package com.feduss.tomato.view.setup
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
@@ -46,7 +43,8 @@ fun SetupView(
     context: Context = LocalContext.current,
     navController: NavHostController = rememberSwipeDismissableNavController(),
     viewModel: SetupViewModel = hiltViewModel(),
-    scrollableScaffoldContext: ScrollableScaffoldContext
+    scrollableScaffoldContext: ScrollableScaffoldContext,
+    openAppSettings: () -> Unit
 ) {
 
     //Go to timer screen if there was an active timer
@@ -105,8 +103,8 @@ fun SetupView(
                 }
             )
         }
-        
-        item { 
+
+        item {
             Text(
                 modifier = Modifier.padding(top = 12.dp),
                 text = "v$versionName ($versionCode)",
@@ -114,6 +112,43 @@ fun SetupView(
                 color = Color.White,
                 fontSize = TextUnit(10f, TextUnitType.Sp)
             )
+        }
+
+        item {
+            val color = Color(("#E3BAFF".toColorInt()))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 12.dp),
+                    text = stringResource(R.string.app_settings_button_description),
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    fontSize = TextUnit(10f, TextUnitType.Sp)
+                )
+                CompactButton(
+                    modifier = Modifier
+                        .width(32.dp)
+                        .aspectRatio(1f)
+                        .background(
+                            color = color,
+                            shape = CircleShape
+                        ),
+                    colors = ButtonDefaults.primaryButtonColors(color, color),
+                    content = {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
+                            contentDescription = "Settings icon",
+                            tint = Color.Black
+                        )
+                    },
+                    onClick = {
+                        openAppSettings()
+                    }
+                )
+            }
         }
     }
 }

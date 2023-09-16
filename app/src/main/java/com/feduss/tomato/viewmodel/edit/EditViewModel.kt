@@ -13,9 +13,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
 class EditViewModel @AssistedInject constructor(
-    timerInteractor: TimerInteractor,
     @Assisted("chip") val chip: Chip
-) : MainViewModel(timerInteractor) {
+) : MainViewModel() {
 
     //Factory
     @AssistedFactory

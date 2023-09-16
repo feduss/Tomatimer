@@ -1,11 +1,13 @@
 package com.feduss.tomato.view.notification
 
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.*
 import android.provider.Settings
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
@@ -46,10 +48,16 @@ class NotificationViewController : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setShowWhenLocked(true)
-        setTurnScreenOn(true)
+        Log.e("LogTest: ", "NotificationViewController init")
 
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).also {
+            it.requestDismissKeyguard(this, null)
+        }
+
+        window.addFlags(
+            WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON
+        )
 
         NotificationUtils.removeOngoingNotification(context)
         PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, "false")

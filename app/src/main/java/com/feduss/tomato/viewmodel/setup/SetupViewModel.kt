@@ -12,7 +12,7 @@ import dagger.assisted.AssistedInject
 import java.util.*
 
 class SetupViewModel @AssistedInject constructor(
-    @Assisted("chips") chips: List<Chip>
+    @Assisted("chips") var chips: List<Chip>
 ) : ViewModel() {
 
     //Factory
@@ -37,7 +37,6 @@ class SetupViewModel @AssistedInject constructor(
         }
     }
 
-    var chips: List<Chip> = chips
     private var lastSelectedChipIndex: Int? = null
 
     fun updateLastSelectedChip(newValue: String) {

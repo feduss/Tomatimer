@@ -1,13 +1,23 @@
 package com.feduss.tomato.view
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.text.format.DateFormat
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -41,7 +51,8 @@ fun MainActivity(
     activity: MainViewController,
     navController: NavHostController,
     chips: List<Chip>,
-    startDestination: String = Section.Setup.baseRoute
+    startDestination: String = Section.Setup.baseRoute,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
 ) {
     
     var endCurvedText by remember {
@@ -53,6 +64,39 @@ fun MainActivity(
     )
 
     val color = Color(("#E3BAFF".toColorInt()))
+
+    val notificationPermissionRequest = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        when {
+            permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false) -> {
+
+            } else -> {
+
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    notificationPermissionRequest.launch(
+                        arrayOf(
+                            Manifest.permission.POST_NOTIFICATIONS
+                        )
+                    )
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     WearNavScaffold(
         modifier = Modifier.background(Color.Black),
@@ -86,7 +130,7 @@ fun MainActivity(
                 navController,
                 setupViewModel,
                 it
-            )
+            ) { openAppSettings(activity) }
         }
 
         composable(route = Section.Edit.parametricRoute, arguments = listOf(
@@ -153,4 +197,12 @@ private fun openNotification(context: Context, activity: MainViewController) {
     notificationIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     activity.startActivity(notificationIntent)
     activity.finish()
+}
+
+fun openAppSettings(activity: MainViewController) {
+    val intent = Intent(
+        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", activity.packageName, null)
+    )
+    activity.startActivity(intent)
 }

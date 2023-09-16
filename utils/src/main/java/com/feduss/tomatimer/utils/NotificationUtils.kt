@@ -55,7 +55,7 @@ class NotificationUtils {
             val channel = NotificationChannel(
                 Consts.MainChannelId.value,
                 Consts.MainNotificationVisibleChannel.value,
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_HIGH
             )
             notificationManager.createNotificationChannel(channel)
 
@@ -65,8 +65,9 @@ class NotificationUtils {
             )
             .setContentTitle(timerName)
             .setSmallIcon(iconId)
-            .setColor(Color.Red.toArgb())
+            //.setColor(Color.Red.toArgb())
             .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setOngoing(true)
 
             val ongoingActivityStatus = Status.Builder()

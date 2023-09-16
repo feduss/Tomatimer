@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.*
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.feduss.tomatimer.entity.enums.PrefParamName
 
@@ -70,22 +71,29 @@ class AlarmUtils {
 
         @SuppressLint("MissingPermission")
         fun vibrate(context: Context) {
-            val vibrationPattern = longArrayOf(500, 50, 500, 50)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorService =
-                    context.getSystemService(AppCompatActivity.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-                vibratorService.defaultVibrator.vibrate(
+            val vibrationPattern = longArrayOf(500, 50, 500, 50, 0, 0 ,0, 500, 50, 500, 50)
+            val vibrator: Vibrator = getVibrator(context)
+            Log.e("LogTest: ", "has vibration? ${vibrator.hasVibrator()}")
+            if (vibrator.hasVibrator()) {
+                vibrator.vibrate(
                     VibrationEffect.createWaveform(
                         vibrationPattern,
                         -1
                     )
                 )
-            } else {
-                val vibrator = context.getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
-                if (vibrator.hasVibrator()) {
-                    vibrator.vibrate(VibrationEffect.createWaveform(vibrationPattern, -1))
-                }
             }
+        }
+
+        private fun getVibrator(context: Context): Vibrator {
+            val vibrator: Vibrator =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorService =
+                        context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+                    vibratorService.defaultVibrator
+                } else {
+                    context.getSystemService(AppCompatActivity.VIBRATOR_SERVICE) as Vibrator
+                }
+            return vibrator
         }
 
         fun sound(context: Context) {

@@ -2,7 +2,6 @@ package com.feduss.tomato.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.feduss.tomatimer.business.TimerInteractor
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils
@@ -12,7 +11,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class MainViewModel @Inject constructor(
-    private val timerInteractor: TimerInteractor
 ) : ViewModel() {
 
     fun getChips(context: Context): List<Chip> {
@@ -57,29 +55,5 @@ open class MainViewModel @Inject constructor(
         }
 
         return defaultChips
-    }
-
-    private fun getCurrentCycleFromPrefs(context: Context): Int {
-        return timerInteractor.getCurrentCycleFromPrefs(context)
-    }
-
-    private fun getCurrentChipTypeFromPrefs(context: Context): String {
-        return timerInteractor.getCurrentChipTypeFromPrefs(context)
-    }
-
-    fun setNextTimerInPrefs(context: Context) {
-        val stringChipType = getCurrentChipTypeFromPrefs(context)
-        val chipType = ChipType.fromString(stringChipType)
-        val currentCycle = getCurrentCycleFromPrefs(context)
-
-        timerInteractor.setNextTimerInPrefs(
-            context,
-            chipType,
-            currentCycle
-        )
-    }
-
-    fun cancelTimerInPrefs(context: Context) {
-        timerInteractor.cancelTimerInPrefs(context)
     }
 }

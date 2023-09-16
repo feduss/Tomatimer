@@ -5,7 +5,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.TURN_SCREEN_ON"/>
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
     <uses-feature android:name="android.hardware.type.watch" />
 
@@ -19,18 +21,16 @@
 
         <activity
             android:name=".view.notification.NotificationViewController"
-            android:exported="false"
-            android:showWhenLocked="true"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true"
             android:turnScreenOn="true"
-            android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:excludeFromRecents="true"
             android:theme="@style/Theme.App.Notification" />
 
         <receiver
             android:name=".receivers.TimerReceiver"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"/>
 
         <uses-library
             android:name="com.google.android.wearable"
