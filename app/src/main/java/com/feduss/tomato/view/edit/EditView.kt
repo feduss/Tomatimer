@@ -46,13 +46,16 @@ import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.Consts
 import com.feduss.tomato.R
 import com.feduss.tomato.viewmodel.edit.EditViewModel
+import com.google.android.horologist.annotations.ExperimentalHorologistApi
+import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
 import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalHorologistApi::class)
 @Composable
 fun EditView(
-    context: Context = LocalContext.current,
-    navController: NavController = rememberSwipeDismissableNavController(),
+    context: Context,
+    navController: NavController,
     viewModel: EditViewModel
 ) {
 
@@ -71,9 +74,6 @@ fun EditView(
     val items: List<Int> = (1..numbOptions + 1).toList()
 
     val initOption = viewModel.chip.value.toInt() - 1
-
-    val coroutineScope = rememberCoroutineScope()
-    val focusRequester = remember { FocusRequester() }
 
     val state = rememberPickerState(
         initialNumberOfOptions = numbOptions,
@@ -118,19 +118,9 @@ fun EditView(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f)
-                .onRotaryScrollEvent {
-                    coroutineScope.launch {
-                        if (it.verticalScrollPixels > 0f) {
-                            state.scrollToOption(state.selectedOption + 1)
-                        } else {
-                            state.scrollToOption(state.selectedOption - 1)
-                        }
-                        performHapticFeedback(haptic)
-                    }
-                    true
-                }
-                .focusRequester(focusRequester)
-                .focusable(),
+                .rotaryWithScroll(
+                    scrollableState = state
+                ),
             separation = 4.dp,
         ) {
             Text(
@@ -161,14 +151,6 @@ fun EditView(
         )
     }
 
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
-
-}
-
-fun performHapticFeedback(haptic: HapticFeedback) {
-    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 }
 
 fun confirmButtonClicked(context: Context, viewModel: EditViewModel, navController: NavController,

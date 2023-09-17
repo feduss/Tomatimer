@@ -13,8 +13,8 @@ android {
         applicationId 'com.feduss.tomatimer'
         minSdk 30
         targetSdk 33
-        versionCode 25
-        versionName '1.1.5'
+        versionCode 26
+        versionName '1.1.6'
 
     }
 
@@ -77,7 +77,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
 
     // Horologist
-    implementation "com.google.android.horologist:horologist-compose-layout:0.5.5"
+    implementation 'com.google.android.horologist:horologist-compose-layout:0.5.6'
 
     // Hilt
     implementation 'com.google.dagger:hilt-android:2.48'
