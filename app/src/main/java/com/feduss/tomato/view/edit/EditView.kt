@@ -2,7 +2,6 @@ package com.feduss.tomato.view.edit
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -14,23 +13,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.rotary.onRotaryScrollEvent
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -40,15 +30,15 @@ import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Picker
+import androidx.wear.compose.material.PickerState
 import androidx.wear.compose.material.rememberPickerState
-import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.Consts
 import com.feduss.tomato.R
 import com.feduss.tomato.viewmodel.edit.EditViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.compose.rotaryinput.rotaryWithScroll
-import kotlinx.coroutines.launch
+import com.google.android.horologist.composables.picker.toRotaryScrollAdapter
+import com.google.android.horologist.compose.rotaryinput.rotaryWithSnap
 
 
 @OptIn(ExperimentalHorologistApi::class)
@@ -75,7 +65,7 @@ fun EditView(
 
     val initOption = viewModel.chip.value.toInt() - 1
 
-    val state = rememberPickerState(
+    val state: PickerState = rememberPickerState(
         initialNumberOfOptions = numbOptions,
         initiallySelectedOption = initOption
     )
@@ -118,8 +108,8 @@ fun EditView(
             modifier = Modifier
                 .fillMaxHeight()
                 .weight(1f)
-                .rotaryWithScroll(
-                    scrollableState = state
+                .rotaryWithSnap(
+                    state.toRotaryScrollAdapter()
                 ),
             separation = 4.dp,
         ) {
