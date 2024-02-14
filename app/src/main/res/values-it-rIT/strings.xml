@@ -16,4 +16,5 @@
     <string name="notification_delete_timer_queue_action">Cancella coda</string>
     <string name="overlay_permission_ratio">Per continuare, devi accettare il permesso di overlay. Clicca continua per proseguire.</string>
     <string name="continue_button">Continua</string>
+    <string name="app_settings_button_description">Impostazioni app</string>
 </resources>

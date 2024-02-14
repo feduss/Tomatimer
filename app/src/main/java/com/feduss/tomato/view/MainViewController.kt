@@ -58,17 +58,13 @@ class MainViewController : ComponentActivity() {
             MaterialTheme {
                 navController = rememberSwipeDismissableNavController()
 
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    MainActivity(
-                        context = context,
-                        activity = this,
-                        navController = navController,
-                        chips = viewModel.getChips(context),
-                        startDestination = Section.Setup.baseRoute
-                    )
-                }
+                MainActivity(
+                    context = context,
+                    activity = this,
+                    navController = navController,
+                    chips = viewModel.getChips(context),
+                    startDestination = Section.Setup.baseRoute
+                )
             }
         }
     }

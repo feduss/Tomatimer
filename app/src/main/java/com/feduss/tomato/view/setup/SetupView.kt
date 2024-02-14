@@ -35,6 +35,7 @@ import com.feduss.tomato.view.ChipView
 import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
+import com.google.android.horologist.compose.layout.ScalingLazyColumnState
 import com.google.android.horologist.compose.navscaffold.ScrollableScaffoldContext
 
 @OptIn(ExperimentalHorologistApi::class)
@@ -43,7 +44,7 @@ fun SetupView(
     context: Context = LocalContext.current,
     navController: NavHostController = rememberSwipeDismissableNavController(),
     viewModel: SetupViewModel = hiltViewModel(),
-    scrollableScaffoldContext: ScrollableScaffoldContext,
+    columnState: ScalingLazyColumnState,
     openAppSettings: () -> Unit
 ) {
 
@@ -66,7 +67,7 @@ fun SetupView(
     ScalingLazyColumn(
         modifier = Modifier
             .padding(16.dp, 0.dp, 16.dp, 0.dp),
-        columnState = scrollableScaffoldContext.columnState
+        columnState = columnState
     ) {
         items(viewModel.chips) { chip ->
             ChipView(

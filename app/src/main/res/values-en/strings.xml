@@ -16,4 +16,5 @@
     <string name="notification_delete_timer_queue_action">Delete queue</string>
     <string name="overlay_permission_ratio">To use the app, you must grant overlay permission. Tap next to open the settings.</string>
     <string name="continue_button">Next</string>
+    <string name="app_settings_button_description">App Settings</string>
 </resources>

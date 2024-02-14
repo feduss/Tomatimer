@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
 import androidx.wear.compose.material.curvedText
+import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import com.feduss.tomatimer.entity.enums.OptionalParams
 import com.feduss.tomatimer.entity.enums.Params
@@ -40,6 +41,9 @@ import com.feduss.tomato.viewmodel.edit.EditViewModel
 import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.feduss.tomato.viewmodel.timer.TimerViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
+import com.google.android.horologist.compose.layout.AppScaffold
+import com.google.android.horologist.compose.layout.rememberColumnState
+import com.google.android.horologist.compose.layout.scrollAway
 import com.google.android.horologist.compose.navscaffold.WearNavScaffold
 import com.google.android.horologist.compose.navscaffold.scrollable
 import java.util.*
@@ -77,6 +81,10 @@ fun MainActivity(
         }
     }
 
+    val setupColumnState = rememberColumnState()
+
+    val timeTextModifier = Modifier.scrollAway(scalingLazyColumnState = setupColumnState)
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -98,11 +106,11 @@ fun MainActivity(
         }
     }
 
-    WearNavScaffold(
-        modifier = Modifier.background(Color.Black),
+    AppScaffold(
         timeText = {
             if (endCurvedText.isNotEmpty()) {
                 TimeText(
+                    modifier = timeTextModifier,
                     timeSource = timeSource,
                     endCurvedContent = {
                         curvedText(
@@ -113,81 +121,90 @@ fun MainActivity(
                 )
             } else {
                 TimeText(
+                    modifier = timeTextModifier,
                     timeSource = timeSource,
                 )
             }
 
         },
-        navController = navController,
-        startDestination = startDestination
     ) {
+        SwipeDismissableNavHost(
+            modifier = Modifier.background(Color.Black),
+            navController = navController,
+            startDestination = startDestination
+        ) {
 
-        scrollable(route = Section.Setup.baseRoute) {
-            val setupViewModel: SetupViewModel = getSetupViewModel(activity, chips)
+            composable(route = Section.Setup.baseRoute) {
+                val setupViewModel: SetupViewModel = getSetupViewModel(activity, chips)
 
-            SetupView(
-                context,
-                navController,
-                setupViewModel,
-                it
-            ) { openAppSettings(activity) }
-        }
-
-        composable(route = Section.Edit.parametricRoute, arguments = listOf(
-            navArgument(Params.Tag.name) { type = NavType.StringType }
-        )
-        ) { navBackStackEntry ->
-            val tag: Int? = navBackStackEntry.arguments?.getString(Params.Tag.name)?.toIntOrNull()
-            tag?.let { tagNotNull ->
-                val chip = chips[tagNotNull]
-                val editViewModel: EditViewModel = getEditViewModel(activity, chip)
-                EditView(
+                SetupView(
                     context,
                     navController,
-                    editViewModel
+                    setupViewModel,
+                    setupColumnState
+                ) { openAppSettings(activity) }
+            }
+
+            composable(route = Section.Edit.parametricRoute, arguments = listOf(
+                navArgument(Params.Tag.name) { type = NavType.StringType }
+            )
+            ) { navBackStackEntry ->
+                val tag: Int? =
+                    navBackStackEntry.arguments?.getString(Params.Tag.name)?.toIntOrNull()
+                tag?.let { tagNotNull ->
+                    val chip = chips[tagNotNull]
+                    val editViewModel: EditViewModel = getEditViewModel(activity, chip)
+                    EditView(
+                        context,
+                        navController,
+                        editViewModel
+                    )
+                }
+            }
+            composable(
+                route = Section.Timer.parametricRoute, arguments = listOf(
+                    navArgument(OptionalParams.ChipIndex.name) {
+                        type = NavType.StringType
+                        nullable = true
+                    },
+                    navArgument(OptionalParams.CycleIndex.name) {
+                        type = NavType.StringType
+                        nullable = true
+                    },
+                    navArgument(OptionalParams.TimerSeconds.name) {
+                        type = NavType.StringType
+                        nullable = true
+                    },
+                )
+            ) { navBackStackEntry ->
+                val initialChipIndex =
+                    navBackStackEntry.arguments?.getString(OptionalParams.ChipIndex.name)?.toInt()
+                        ?: 0
+                val initialCycle =
+                    navBackStackEntry.arguments?.getString(OptionalParams.CycleIndex.name)?.toInt()
+                        ?: 0
+                val initialTimerSeconds =
+                    navBackStackEntry.arguments?.getString(OptionalParams.TimerSeconds.name)
+                        ?.toInt() ?: 0
+
+                val timerViewModel: TimerViewModel = getTimerViewModel(
+                    activity,
+                    chips,
+                    initialChipIndex,
+                    initialCycle,
+                    initialTimerSeconds
+                )
+
+                TimerView(
+                    context = context,
+                    navController = navController,
+                    viewModel = timerViewModel,
+                    onTimerSet = { hourTimerEnd: String ->
+                        endCurvedText = hourTimerEnd
+                    },
+                    openNotification = { openNotification(context, activity) }
                 )
             }
-        }
-        composable(
-            route = Section.Timer.parametricRoute, arguments = listOf(
-                navArgument(OptionalParams.ChipIndex.name) {
-                    type = NavType.StringType
-                    nullable = true
-                },
-                navArgument(OptionalParams.CycleIndex.name) {
-                    type = NavType.StringType
-                    nullable = true
-                },
-                navArgument(OptionalParams.TimerSeconds.name) {
-                    type = NavType.StringType
-                    nullable = true
-                },
-            )
-        ) { navBackStackEntry ->
-            val initialChipIndex =
-                navBackStackEntry.arguments?.getString(OptionalParams.ChipIndex.name)?.toInt() ?: 0
-            val initialCycle =
-                navBackStackEntry.arguments?.getString(OptionalParams.CycleIndex.name)?.toInt() ?: 0
-            val initialTimerSeconds =
-                navBackStackEntry.arguments?.getString(OptionalParams.TimerSeconds.name)?.toInt() ?: 0
-
-            val timerViewModel: TimerViewModel = getTimerViewModel(
-                activity,
-                chips,
-                initialChipIndex,
-                initialCycle,
-                initialTimerSeconds
-            )
-
-            TimerView(
-                context = context,
-                navController = navController,
-                viewModel = timerViewModel,
-                onTimerSet = { hourTimerEnd: String ->
-                    endCurvedText = hourTimerEnd
-                },
-                openNotification = { openNotification(context, activity) }
-            )
         }
     }
 }
