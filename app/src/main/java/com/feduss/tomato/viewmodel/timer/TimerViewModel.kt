@@ -7,6 +7,8 @@ import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils
+import com.feduss.tomato.helper.PrefsHelper
+import com.feduss.tomato.view.notification.NotificationViewController
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -96,6 +98,12 @@ class TimerViewModel @AssistedInject constructor(
     fun setTimerState(context: Context, isTimerActive: Boolean) {
         val stringValue = if (isTimerActive) "true" else "false"
         PrefsUtils.setPref(context, PrefParamName.IsTimerActive.name, stringValue)
+    }
+
+    fun setNextTimerInPrefs(
+        context: Context, chipType: ChipType?, currentCycle: Int
+    ) {
+        PrefsHelper.setNextTimerInPrefs(context, chipType, currentCycle)
     }
 
     fun cancelTimer(context: Context) {

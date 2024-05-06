@@ -23,6 +23,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,15 +43,12 @@ import androidx.wear.compose.material.TitleCard
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomato.R
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChipView(
     chip: Chip,
     tag: Int = 0,
     onChipClicked: (String) -> Unit = {}
 ) {
-
-    val violetColor = Color(("#C26EFA".toColorInt()))
     val pinkColor = Color(("#E3BAFF".toColorInt()))
     val fontSize = TextUnit(10f, TextUnitType.Sp)
 
@@ -72,7 +70,7 @@ fun ChipView(
             modifier = Modifier
                 .height(IntrinsicSize.Min)
                 .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 16.dp),
+                .padding(vertical = 4.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -98,7 +96,8 @@ fun ChipView(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
             ) {
-                Divider(
+
+                VerticalDivider(
                     modifier = Modifier
                         .fillMaxHeight(0.8f)
                         .width(1.dp),
@@ -106,7 +105,7 @@ fun ChipView(
                 )
 
                 Icon(
-                    modifier = Modifier.width(24.dp),
+                    modifier = Modifier.height(24.dp),
                     imageVector = ImageVector.vectorResource(
                         id = R.drawable.ic_edit
                     ),

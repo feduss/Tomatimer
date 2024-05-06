@@ -17,4 +17,5 @@
     <string name="overlay_permission_ratio">To use the app, you must grant overlay permission. Tap next to open the settings.</string>
     <string name="continue_button">Next</string>
     <string name="app_settings_button_description">App Settings</string>
+    <string name="skip_timer">Do you really want to skip this timer?</string>
 </resources>

@@ -70,15 +70,21 @@ fun SetupView(
         columnState = columnState
     ) {
         items(viewModel.chips) { chip ->
-            ChipView(
-                chip = chip,
-                tag = chip.type.tag,
-                onChipClicked = { tag ->
-                    viewModel.userHasSelectedChip(tag.toInt())
-                    val args = listOf(tag)
-                    navController.navigate(Section.Edit.withArgs(args))
-                }
-            )
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ChipView(
+                    chip = chip,
+                    tag = chip.type.tag,
+                    onChipClicked = { tag ->
+                        viewModel.userHasSelectedChip(tag.toInt())
+                        val args = listOf(tag)
+                        navController.navigate(Section.Edit.withArgs(args))
+                    }
+                )
+                Box(modifier = Modifier.height(4.dp))
+            }
         }
 
         item {

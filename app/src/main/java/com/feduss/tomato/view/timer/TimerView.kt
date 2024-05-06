@@ -1,13 +1,17 @@
 package com.feduss.tomato.view.timer
 
 import android.content.Context
+import android.content.Intent
 import android.os.CountDownTimer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -41,9 +45,16 @@ import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
+import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomato.R
+import com.feduss.tomato.view.MainViewController
 import com.feduss.tomato.viewmodel.timer.TimerViewModel
 import java.util.Calendar
+
+enum class AlertType {
+    StopTimer,
+    SkipTimer
+}
 
 
 @Preview
@@ -57,12 +68,15 @@ fun TimerView(
 ) {
     val playIcon = ImageVector.vectorResource(id = R.drawable.ic_play_24dp)
     val pauseIcon = ImageVector.vectorResource(id = R.drawable.ic_pause_24dp)
+    val skipIcon = ImageVector.vectorResource(id = R.drawable.ic_skip_next)
     val activeColor = Color("#649e5d".toColorInt())
     val inactiveColor = Color("#a15757".toColorInt())
 
     var isAlertDialogVisible by remember {
         mutableStateOf(false)
     }
+
+    var alertType: AlertType? = null
 
     //Number of the cycle of the tomato timer
     val totalCycles = viewModel.totalCycles
@@ -124,7 +138,7 @@ fun TimerView(
         mutableStateOf(pauseIcon)
     }
 
-    var appWasOnPause by remember {
+    val appWasOnPause by remember {
         mutableStateOf(false)
     }
 
@@ -168,6 +182,7 @@ fun TimerView(
     viewModel.setTimerState(context, isTimerActive = true)
 
     BackHandler {
+        alertType = AlertType.StopTimer
         isAlertDialogVisible = !isAlertDialogVisible
 
         if (!isAlertDialogVisible) {
@@ -181,90 +196,73 @@ fun TimerView(
             onTimerSet("")
             timer.cancel()
             isTimerActive = false
-            Alert(
-                title = {
-                    Text(
-                        text = stringResource(R.string.stop_timer_question),
-                        textAlign = TextAlign.Center,
-                        color = Color.White
-                    )
-                },
-                verticalArrangement = Arrangement.Center,
-                negativeButton = {
-                    val color = Color.DarkGray
-                    CompactButton(
-                        modifier = Modifier
-                            .width(48.dp)
-                            .aspectRatio(1f)
-                            .background(
-                                color = color,
-                                shape = CircleShape
-                            ),
-                        colors = ButtonDefaults.primaryButtonColors(color, color),
-                        content = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(
-                                    id = R.drawable.ic_close_24dp
-                                ),
-                                contentDescription = "Close icon",
-                                tint = Color.White
+
+            val resumeTimer = {
+                maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
+                isAlertDialogVisible = false
+                isTimerActive = true
+                updateTimeText(currentTimerSecondsRemaining, onTimerSet)
+            }
+
+            when(alertType) {
+                AlertType.SkipTimer -> {
+                    AlertDialog(
+                        titleId = R.string.skip_timer,
+                        negativeButtonIconId = R.drawable.ic_close_24dp,
+                        negativeButtonIconDesc = "Close icon",
+                        negativeButtonClicked = resumeTimer,
+                        positiveButtonIconId = R.drawable.ic_check_24dp,
+                        positiveButtonIconDesc = "Check icon",
+                        positiveButtonClicked = {
+                            goToNextTimer(
+                                context = context,
+                                viewModel = viewModel,
+                                chipType = currentChip.type,
+                                currentCycle = currentCycle,
+                                navController = navController
                             )
-                        },
-                        onClick = {
-                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
-                            isAlertDialogVisible = false
-                            isTimerActive = true
-                            updateTimeText(currentTimerSecondsRemaining, onTimerSet)
                         }
                     )
-                },
-                positiveButton = {
-                    val color = Color("#E3BAFF".toColorInt())
-                    CompactButton(
-                        modifier = Modifier
-                            .width(48.dp)
-                            .aspectRatio(1f)
-                            .background(
-                                color = color,
-                                shape = CircleShape
-                            ),
-                        colors = ButtonDefaults.primaryButtonColors(color, color),
-                        content = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(
-                                    id = R.drawable.ic_check_24dp
-                                ),
-                                contentDescription = "Check icon",
-                                tint = Color.Black
-                            )
-                        },
-                        onClick = {
+                }
+
+                AlertType.StopTimer -> {
+                    AlertDialog(
+                        titleId = R.string.stop_timer_question,
+                        negativeButtonIconId = R.drawable.ic_close_24dp,
+                        negativeButtonIconDesc = "Close icon",
+                        negativeButtonClicked = resumeTimer,
+                        positiveButtonIconId = R.drawable.ic_check_24dp,
+                        positiveButtonIconDesc = "Check icon",
+                        positiveButtonClicked = {
                             backToHome(context, viewModel, navController)
                         }
                     )
                 }
-            )
+
+                null -> {}
+            }
 
         }
         else {
             CircularProgressIndicator(
-                progress = progress.toFloat(),
+                progress = { progress.toFloat() },
                 modifier = Modifier.fillMaxSize(),
                 color = sliderColor,
-                strokeWidth = 4.dp
+                strokeWidth = 4.dp,
             )
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(24.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Column(
                     modifier = Modifier
                     .padding(4.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                    horizontalAlignment = Alignment.CenterHorizontally){
+                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
                     Text(
                         text = title,
                         color = Color("#E3BAFF".toColorInt()),
@@ -278,6 +276,7 @@ fun TimerView(
                     )
                 }
                 Text(
+                    modifier = Modifier.weight(1f),
                     text = value,
                     color = Color("#E3BAFF".toColorInt()),
                     textAlign = TextAlign.Center
@@ -285,7 +284,7 @@ fun TimerView(
                 val color = Color("#E3BAFF".toColorInt())
                 CompactButton(
                     modifier = Modifier
-                        .width(48.dp)
+                        .width(24.dp)
                         .aspectRatio(1f)
                         .background(
                             color = color,
@@ -315,9 +314,96 @@ fun TimerView(
                         }
                     }
                 )
+                Box(modifier = Modifier.height(8.dp))
+                //val hideSkipButton = currentChip.type == ChipType.LongBreak && currentCycle == totalCycles - 1
+                CompactButton(
+                    modifier = Modifier
+                        .width(24.dp)
+                        .aspectRatio(1f)
+                        .background(
+                            color = color,
+                            shape = CircleShape
+                        ),
+                    colors = ButtonDefaults.primaryButtonColors(color, color),
+                    content = {
+                        Icon(
+                            imageVector = skipIcon,
+                            contentDescription = "SKIP icon",
+                            tint = Color.Black
+                        )
+                    },
+                    onClick = {
+                        alertType = AlertType.SkipTimer
+                        isAlertDialogVisible = true
+                    }
+                )
             }
         }
     }
+}
+
+@Composable
+private fun AlertDialog(
+    titleId: Int,
+    negativeButtonIconId: Int, negativeButtonIconDesc: String, negativeButtonClicked: () -> Unit,
+    positiveButtonIconId: Int, positiveButtonIconDesc: String, positiveButtonClicked: () -> Unit
+) {
+    Alert(
+        title = {
+            Text(
+                text = stringResource(titleId),
+                textAlign = TextAlign.Center,
+                color = Color.White
+            )
+        },
+        verticalArrangement = Arrangement.Center,
+        negativeButton = {
+            val color = Color.DarkGray
+            CompactButton(
+                modifier = Modifier
+                    .width(48.dp)
+                    .aspectRatio(1f)
+                    .background(
+                        color = color,
+                        shape = CircleShape
+                    ),
+                colors = ButtonDefaults.primaryButtonColors(color, color),
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(
+                            id = negativeButtonIconId
+                        ),
+                        contentDescription = negativeButtonIconDesc,
+                        tint = Color.White
+                    )
+                },
+                onClick = negativeButtonClicked
+            )
+        },
+        positiveButton = {
+            val color = Color("#E3BAFF".toColorInt())
+            CompactButton(
+                modifier = Modifier
+                    .width(48.dp)
+                    .aspectRatio(1f)
+                    .background(
+                        color = color,
+                        shape = CircleShape
+                    ),
+                colors = ButtonDefaults.primaryButtonColors(color, color),
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(
+                            id = positiveButtonIconId
+                        ),
+                        contentDescription = positiveButtonIconDesc,
+                        tint = Color.Black
+                    )
+                },
+                onClick = positiveButtonClicked
+            )
+        }
+    )
 }
 
 private fun updateTimeText(
@@ -341,4 +427,9 @@ fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHo
 fun setTimerExpired(context: Context, viewModel: TimerViewModel, openNotification: () -> Unit) {
     viewModel.setTimerState(context, false)
     openNotification()
+}
+
+private fun goToNextTimer(context: Context, viewModel: TimerViewModel, chipType: ChipType?, currentCycle: Int, navController: NavHostController) {
+    viewModel.setNextTimerInPrefs(context, chipType, currentCycle)
+    navController.popBackStack()
 }
