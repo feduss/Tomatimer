@@ -8,8 +8,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -76,7 +78,9 @@ fun TimerView(
         mutableStateOf(false)
     }
 
-    var alertType: AlertType? = null
+    var alertType: AlertType? by remember {
+        mutableStateOf(null)
+    }
 
     //Number of the cycle of the tomato timer
     val totalCycles = viewModel.totalCycles
@@ -182,10 +186,12 @@ fun TimerView(
     viewModel.setTimerState(context, isTimerActive = true)
 
     BackHandler {
-        alertType = AlertType.StopTimer
         isAlertDialogVisible = !isAlertDialogVisible
 
-        if (!isAlertDialogVisible) {
+        if (isAlertDialogVisible) {
+            alertType = AlertType.StopTimer
+        } else {
+            alertType = null
             maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
             isTimerActive = true
         }
@@ -202,6 +208,7 @@ fun TimerView(
                 isAlertDialogVisible = false
                 isTimerActive = true
                 updateTimeText(currentTimerSecondsRemaining, onTimerSet)
+                alertType = null
             }
 
             when(alertType) {
@@ -221,6 +228,7 @@ fun TimerView(
                                 currentCycle = currentCycle,
                                 navController = navController
                             )
+                            alertType = null
                         }
                     )
                 }
@@ -235,6 +243,7 @@ fun TimerView(
                         positiveButtonIconDesc = "Check icon",
                         positiveButtonClicked = {
                             backToHome(context, viewModel, navController)
+                            alertType = null
                         }
                     )
                 }
@@ -253,90 +262,89 @@ fun TimerView(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(top = 32.dp, bottom = 32.dp, start = 8.dp, end = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier
-                    .padding(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Text(
-                        text = title,
-                        color = Color("#E3BAFF".toColorInt()),
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = stringResource(R.string.cycle_name, (currentCycle + 1), totalCycles),
-                        color = Color("#E3BAFF".toColorInt()),
-                        textAlign = TextAlign.Center,
-                        fontSize = TextUnit(10f, TextUnitType.Sp)
-                    )
-                }
                 Text(
-                    modifier = Modifier.weight(1f),
+                    text = title,
+                    color = Color("#E3BAFF".toColorInt()),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = stringResource(R.string.cycle_name, (currentCycle + 1), totalCycles),
+                    color = Color("#E3BAFF".toColorInt()),
+                    textAlign = TextAlign.Center,
+                    fontSize = TextUnit(10f, TextUnitType.Sp)
+                )
+                Text(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                    .weight(1f),
                     text = value,
                     color = Color("#E3BAFF".toColorInt()),
                     textAlign = TextAlign.Center
                 )
-                val color = Color("#E3BAFF".toColorInt())
-                CompactButton(
-                    modifier = Modifier
-                        .width(24.dp)
-                        .aspectRatio(1f)
-                        .background(
-                            color = color,
-                            shape = CircleShape
-                        ),
-                    colors = ButtonDefaults.primaryButtonColors(color, color),
-                    content = {
-                        Icon(
-                            imageVector = iconImage,
-                            contentDescription = "ADD icon",
-                            tint = Color.Black
-                        )
-                    },
-                    onClick = {
-                        iconImage = if (isTimerActive) playIcon else pauseIcon
-                        sliderColor = if (isTimerActive) inactiveColor else activeColor
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally)
+                ) {
+                    val color = Color("#E3BAFF".toColorInt())
+                    CompactButton(
+                        modifier = Modifier
+                            .width(24.dp)
+                            .aspectRatio(1f)
+                            .background(
+                                color = color,
+                                shape = CircleShape
+                            ),
+                        colors = ButtonDefaults.primaryButtonColors(color, color),
+                        content = {
+                            Icon(
+                                imageVector = iconImage,
+                                contentDescription = "ADD icon",
+                                tint = Color.Black
+                            )
+                        },
+                        onClick = {
+                            iconImage = if (isTimerActive) playIcon else pauseIcon
+                            sliderColor = if (isTimerActive) inactiveColor else activeColor
 
-                        isTimerActive = !isTimerActive
-                        viewModel.setTimerState(context, isTimerActive = isTimerActive)
+                            isTimerActive = !isTimerActive
+                            viewModel.setTimerState(context, isTimerActive = isTimerActive)
 
-                        if (isTimerActive) {
-                            //Restore the paused timer with the remaining seconds
-                            maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
-                            updateTimeText(maxTimerSeconds, onTimerSet)
-                        } else {
-                            timer.cancel()
+                            if (isTimerActive) {
+                                //Restore the paused timer with the remaining seconds
+                                maxTimerSeconds = viewModel.loadTimerSecondsRemainings(context)
+                                updateTimeText(maxTimerSeconds, onTimerSet)
+                            } else {
+                                timer.cancel()
+                            }
                         }
-                    }
-                )
-                Box(modifier = Modifier.height(8.dp))
-                //val hideSkipButton = currentChip.type == ChipType.LongBreak && currentCycle == totalCycles - 1
-                CompactButton(
-                    modifier = Modifier
-                        .width(24.dp)
-                        .aspectRatio(1f)
-                        .background(
-                            color = color,
-                            shape = CircleShape
-                        ),
-                    colors = ButtonDefaults.primaryButtonColors(color, color),
-                    content = {
-                        Icon(
-                            imageVector = skipIcon,
-                            contentDescription = "SKIP icon",
-                            tint = Color.Black
-                        )
-                    },
-                    onClick = {
-                        alertType = AlertType.SkipTimer
-                        isAlertDialogVisible = true
-                    }
-                )
+                    )
+                    //val hideSkipButton = currentChip.type == ChipType.LongBreak && currentCycle == totalCycles - 1
+                    CompactButton(
+                        modifier = Modifier
+                            .width(24.dp)
+                            .aspectRatio(1f)
+                            .background(
+                                color = color,
+                                shape = CircleShape
+                            ),
+                        colors = ButtonDefaults.primaryButtonColors(color, color),
+                        content = {
+                            Icon(
+                                imageVector = skipIcon,
+                                contentDescription = "SKIP icon",
+                                tint = Color.Black
+                            )
+                        },
+                        onClick = {
+                            alertType = AlertType.SkipTimer
+                            isAlertDialogVisible = true
+                        }
+                    )
+                }
             }
         }
     }

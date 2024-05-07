@@ -33,6 +33,7 @@ import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomato.factory.getEditViewModel
 import com.feduss.tomato.factory.getSetupViewModel
 import com.feduss.tomato.factory.getTimerViewModel
+import com.feduss.tomato.view.component.PageView
 import com.feduss.tomato.view.edit.EditView
 import com.feduss.tomato.view.notification.NotificationViewController
 import com.feduss.tomato.view.setup.SetupView
@@ -63,12 +64,6 @@ fun MainActivity(
         mutableStateOf("")
     }
 
-    val timeSource = TimeTextDefaults.timeSource(
-        DateFormat.getBestDateTimePattern(Locale.getDefault(), "HH:mm")
-    )
-
-    val color = Color(("#E3BAFF".toColorInt()))
-
     val notificationPermissionRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -80,10 +75,6 @@ fun MainActivity(
             }
         }
     }
-
-    val setupColumnState = rememberColumnState()
-
-    val timeTextModifier = Modifier.scrollAway(scalingLazyColumnState = setupColumnState)
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -106,28 +97,7 @@ fun MainActivity(
         }
     }
 
-    AppScaffold(
-        timeText = {
-            if (endCurvedText.isNotEmpty()) {
-                TimeText(
-                    modifier = timeTextModifier,
-                    timeSource = timeSource,
-                    endCurvedContent = {
-                        curvedText(
-                            text = endCurvedText,
-                            color = color
-                        )
-                    }
-                )
-            } else {
-                TimeText(
-                    modifier = timeTextModifier,
-                    timeSource = timeSource,
-                )
-            }
-
-        },
-    ) {
+    AppScaffold {
         SwipeDismissableNavHost(
             modifier = Modifier.background(Color.Black),
             navController = navController,
@@ -137,12 +107,14 @@ fun MainActivity(
             composable(route = Section.Setup.baseRoute) {
                 val setupViewModel: SetupViewModel = getSetupViewModel(activity, chips)
 
-                SetupView(
-                    context,
-                    navController,
-                    setupViewModel,
-                    setupColumnState
-                ) { openAppSettings(activity) }
+                PageView(endCurvedText = endCurvedText) {
+                    SetupView(
+                        context = context,
+                        navController = navController,
+                        viewModel = setupViewModel,
+                        columnState =  it
+                    ) { openAppSettings(activity) }
+                }
             }
 
             composable(route = Section.Edit.parametricRoute, arguments = listOf(
@@ -154,11 +126,14 @@ fun MainActivity(
                 tag?.let { tagNotNull ->
                     val chip = chips[tagNotNull]
                     val editViewModel: EditViewModel = getEditViewModel(activity, chip)
-                    EditView(
-                        context,
-                        navController,
-                        editViewModel
-                    )
+
+                    PageView(endCurvedText = endCurvedText) {
+                        EditView(
+                            context = context,
+                            navController = navController,
+                            viewModel = editViewModel
+                        )
+                    }
                 }
             }
             composable(
@@ -195,15 +170,17 @@ fun MainActivity(
                     initialTimerSeconds
                 )
 
-                TimerView(
-                    context = context,
-                    navController = navController,
-                    viewModel = timerViewModel,
-                    onTimerSet = { hourTimerEnd: String ->
-                        endCurvedText = hourTimerEnd
-                    },
-                    openNotification = { openNotification(context, activity) }
-                )
+                PageView(endCurvedText = endCurvedText) {
+                    TimerView(
+                        context = context,
+                        navController = navController,
+                        viewModel = timerViewModel,
+                        onTimerSet = { hourTimerEnd: String ->
+                            endCurvedText = hourTimerEnd
+                        },
+                        openNotification = { openNotification(context, activity) }
+                    )
+                }
             }
         }
     }
