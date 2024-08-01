@@ -21,6 +21,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -39,9 +41,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.wear.compose.foundation.SwipeToDismissValue
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.CompactButton
 import androidx.wear.compose.material.SwipeToDismissBox
@@ -182,10 +187,12 @@ fun TimerView(
         }.start())
     }
 
+    val swipeToDismissBoxState = rememberSwipeToDismissBoxState()
+
     updateTimeText(currentTimerSecondsRemaining, onTimerSet)
     viewModel.setTimerState(context, isTimerActive = true)
 
-    BackHandler {
+    val swipeBackClosure = {
         isAlertDialogVisible = !isAlertDialogVisible
 
         if (isAlertDialogVisible) {
@@ -197,7 +204,16 @@ fun TimerView(
         }
     }
 
-    SwipeToDismissBox(onDismissed = { isAlertDialogVisible = true }) {
+    BackHandler {
+        userSwippedBack(swipeBackClosure)
+    }
+
+    SwipeToDismissBox(
+        state = swipeToDismissBoxState,
+        onDismissed = {
+            userSwippedBack(swipeBackClosure)
+        }
+    ) {
         if (isAlertDialogVisible) {
             onTimerSet("")
             timer.cancel()
@@ -280,7 +296,7 @@ fun TimerView(
                 Text(
                     modifier = Modifier
                         .fillMaxHeight()
-                    .weight(1f),
+                        .weight(1f),
                     text = value,
                     color = Color("#E3BAFF".toColorInt()),
                     textAlign = TextAlign.Center
@@ -322,28 +338,30 @@ fun TimerView(
                             }
                         }
                     )
-                    //val hideSkipButton = currentChip.type == ChipType.LongBreak && currentCycle == totalCycles - 1
-                    CompactButton(
-                        modifier = Modifier
-                            .width(24.dp)
-                            .aspectRatio(1f)
-                            .background(
-                                color = color,
-                                shape = CircleShape
-                            ),
-                        colors = ButtonDefaults.primaryButtonColors(color, color),
-                        content = {
-                            Icon(
-                                imageVector = skipIcon,
-                                contentDescription = "SKIP icon",
-                                tint = Color.Black
-                            )
-                        },
-                        onClick = {
-                            alertType = AlertType.SkipTimer
-                            isAlertDialogVisible = true
-                        }
-                    )
+                    val isLastTimer = currentChip.type == ChipType.LongBreak && currentCycle == totalCycles - 1
+                    if (!isLastTimer) {
+                        CompactButton(
+                            modifier = Modifier
+                                .width(24.dp)
+                                .aspectRatio(1f)
+                                .background(
+                                    color = color,
+                                    shape = CircleShape
+                                ),
+                            colors = ButtonDefaults.primaryButtonColors(color, color),
+                            content = {
+                                Icon(
+                                    imageVector = skipIcon,
+                                    contentDescription = "SKIP icon",
+                                    tint = Color.Black
+                                )
+                            },
+                            onClick = {
+                                alertType = AlertType.SkipTimer
+                                isAlertDialogVisible = true
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -425,6 +443,10 @@ private fun updateTimeText(
     val calendarMinutes = calendar.get(Calendar.MINUTE)
     val minutes = if (calendarMinutes < 10) "0$calendarMinutes" else calendarMinutes
     onTimerSet("$calendarHour:$minutes")
+}
+
+private fun userSwippedBack(swipeBackClosure: () -> Unit) {
+    swipeBackClosure()
 }
 
 fun backToHome(context: Context, viewModel: TimerViewModel, navController: NavHostController){
