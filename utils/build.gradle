@@ -6,11 +6,10 @@ plugins {
 
 android {
     namespace 'com.feduss.tomatimer.utils'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         minSdk 26
-        targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -23,8 +22,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 }
 
@@ -34,10 +33,9 @@ dependencies {
     implementation project(path: ':entity')
 
     //Kotlin core
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.16.0'
 
     //Androidx for legacy support
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.wear:wear-ongoing:1.0.0'
 
     //Testing

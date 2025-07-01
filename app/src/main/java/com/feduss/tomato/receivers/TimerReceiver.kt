@@ -14,7 +14,7 @@ import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.utils.AlarmUtils
 import com.feduss.tomatimer.utils.NotificationUtils
 import com.feduss.tomatimer.utils.PrefsUtils
-import com.feduss.tomato.R
+import com.feduss.tomato.uistate.R
 import com.feduss.tomato.view.notification.NotificationViewController
 
 

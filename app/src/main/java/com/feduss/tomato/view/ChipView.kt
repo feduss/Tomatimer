@@ -1,26 +1,17 @@
 package com.feduss.tomato.view
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -31,25 +22,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.TitleCard
-import com.feduss.tomatimer.entity.models.Chip
-import com.feduss.tomato.R
+import com.feduss.tomato.uistate.R
+import com.feduss.tomato.uistate.extension.PurpleCustom
+import com.feduss.tomato.uistate.viewmodel.ChipUiState
 
 @Composable
 fun ChipView(
-    chip: Chip,
+    chipUiState: ChipUiState,
     tag: Int = 0,
     onChipClicked: (String) -> Unit = {}
 ) {
-    val pinkColor = Color(("#E3BAFF".toColorInt()))
+    val purpleColor = Color.PurpleCustom
     val fontSize = TextUnit(10f, TextUnitType.Sp)
 
     OutlinedCard(
@@ -61,7 +48,7 @@ fun ChipView(
             containerColor = Color.Black,
             contentColor = Color.White
         ),
-        border = BorderStroke(1.dp, pinkColor),
+        border = BorderStroke(1.dp, purpleColor),
         onClick = {
             onChipClicked(tag.toString())
         }
@@ -80,13 +67,13 @@ fun ChipView(
                 horizontalAlignment = Alignment.Start
             ) {
                 Text(
-                    chip.fullTitle,
+                    chipUiState.fullTitle,
                     textAlign = TextAlign.Center,
                     fontSize = fontSize
                 )
 
                 Text(
-                    "${chip.value}${chip.unit}",
+                    "${chipUiState.value}${chipUiState.unit}",
                     textAlign = TextAlign.Center,
                     fontSize = fontSize
                 )
@@ -110,7 +97,7 @@ fun ChipView(
                         id = R.drawable.ic_edit
                     ),
                     contentDescription = "ic_edit",
-                    tint = pinkColor
+                    tint = purpleColor
                 )
             }
         }

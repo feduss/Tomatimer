@@ -26,16 +26,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.SwipeToDismissBox
 import com.feduss.tomato.view.MainViewController
-import com.feduss.tomato.R
+import com.feduss.tomato.uistate.R
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.utils.AlarmUtils
 import com.feduss.tomatimer.utils.NotificationUtils
 import com.feduss.tomatimer.utils.PrefsUtils
-import com.feduss.tomato.viewmodel.notification.NotificationViewModel
+import com.feduss.tomato.uistate.extension.PurpleCustom
+import com.feduss.tomato.uistate.viewmodel.notification.NotificationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -112,7 +112,7 @@ class NotificationViewController : AppCompatActivity() {
         currentCycle: Int = 0,
         chipTitle: String = "Pomodoro"
     ) {
-        val color = Color(("#E3BAFF".toColorInt()))
+        val color = Color.PurpleCustom
 
         BackHandler {
             handleBack(chipType, currentCycle)

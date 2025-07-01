@@ -47,11 +47,8 @@ class PrefsUtils {
                         PrefParamName.CurrentTimerIndex.name,
                         ChipType.Tomato.tag.toString()
                     )
-                    setPref(
-                        context,
-                        PrefParamName.CurrentCycle.name,
-                        (currentCycle + 1).toString()
-                    )
+
+
                 }
                 ChipType.LongBreak -> {
                     setPref(context, PrefParamName.CurrentTimerName.name, null)
@@ -68,6 +65,28 @@ class PrefsUtils {
             setPref(context, PrefParamName.CurrentTimerIndex.name, null)
             setPref(context, PrefParamName.CurrentCycle.name, null)
             setPref(context, PrefParamName.SecondsRemaining.name, null)
+        }
+
+        fun getChipTitleFromPrefs(context: Context): String {
+            return PrefsUtils.getPref(context, PrefParamName.CurrentTimerName.name) ?: "NoTitle"
+        }
+
+        fun getCurrentCycleFromPrefs(context: Context): Int {
+            return PrefsUtils.getPref(context, PrefParamName.CurrentCycle.name)?.toInt() ?: -1
+        }
+
+        fun getCurrentChipTypeFromPrefs(context: Context): String {
+            return PrefsUtils.getPref(context, PrefParamName.CurrentChipType.name) ?: "NoType"
+        }
+
+        fun cancelTimerInPrefs(context: Context) {
+            PrefsUtils.cancelTimer(context)
+        }
+
+        fun setNextTimerInPrefs(context: Context, chipType: ChipType?,
+                                currentCycle: Int
+        ) {
+            PrefsUtils.setNextTimer(context, chipType, currentCycle)
         }
     }
 }
