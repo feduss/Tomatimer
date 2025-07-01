@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.TURN_SCREEN_ON"/>
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
@@ -24,7 +24,6 @@
             android:exported="true"
             android:launchMode="singleTop"
             android:showOnLockScreen="true"
-            android:taskAffinity=""
             android:turnScreenOn="true"
             android:theme="@style/Theme.App.Notification" />
 
@@ -47,8 +46,6 @@
         <activity
             android:name=".view.MainViewController"
             android:exported="true"
-            android:taskAffinity=""
-            android:launchMode="singleTop"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -2,23 +2,15 @@ package com.feduss.tomato.view.setup
 
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -27,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.lazy.items
@@ -37,11 +30,13 @@ import com.feduss.tomatimer.entity.enums.Consts
 import com.feduss.tomatimer.entity.enums.OptionalParams
 import com.feduss.tomatimer.entity.enums.Section
 import com.feduss.tomato.BuildConfig
+import com.feduss.tomato.R
 import com.feduss.tomato.view.ChipView
-import com.feduss.tomato.uistate.viewmodel.setup.SetupViewModel
+import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
+import com.google.android.horologist.compose.navscaffold.ScrollableScaffoldContext
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
@@ -53,19 +48,12 @@ fun SetupView(
     openAppSettings: () -> Unit
 ) {
 
-    val dataUiState by viewModel.dataUiState.collectAsState()
-    val navUiState by viewModel.navUiState.collectAsState()
-
     //Go to timer screen if there was an active timer
     restoreSavedTimerFlow(context, viewModel, navController)
 
     //When the user edit the timer in EditView, the SetupView needs to refresh its datas
     val updateChipState = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(
         Consts.NewValueKey.value)?.observeAsState()
-
-    LaunchedEffect(Unit) {
-        viewModel.initUiState(context)
-    }
 
     LaunchedEffect(updateChipState) {
         updateChipState?.value?.let { newValue ->
@@ -76,46 +64,77 @@ fun SetupView(
     val versionName = BuildConfig.VERSION_NAME
     val versionCode = BuildConfig.VERSION_CODE
 
-    navUiState?.let {
-        when(it) {
-            SetupViewModel.NavUiState.GoToAppSettings -> {
-                openAppSettings()
-            }
-            is SetupViewModel.NavUiState.GoToChipEdit -> {
-                val args = listOf(it.tag)
-                navController.navigate(Section.Edit.withArgs(args))
-            }
-            SetupViewModel.NavUiState.GoToStartTimer -> {
-                navController.navigate(Section.Timer.baseRoute)
+    ScalingLazyColumn(
+        modifier = Modifier
+            .padding(16.dp, 0.dp, 16.dp, 0.dp),
+        columnState = columnState
+    ) {
+        items(viewModel.chips) { chip ->
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ChipView(
+                    chip = chip,
+                    tag = chip.type.tag,
+                    onChipClicked = { tag ->
+                        viewModel.userHasSelectedChip(tag.toInt())
+                        val args = listOf(tag)
+                        navController.navigate(Section.Edit.withArgs(args))
+                    }
+                )
+                Box(modifier = Modifier.height(4.dp))
             }
         }
-        viewModel.firedNavState()
-    }
 
-    dataUiState?.let { state ->
-        ScalingLazyColumn(
-            modifier = Modifier
-                .padding(16.dp, 0.dp, 16.dp, 0.dp),
-            columnState = columnState
-        ) {
-            items(state.chipsUiState) { chipUiState ->
-                Column(
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    ChipView(
-                        chipUiState = chipUiState,
-                        tag = chipUiState.type.tag,
-                        onChipClicked = { tag ->
-                            viewModel.userTapOnChip(tag = tag)
-                        }
+        item {
+            val color = Color(("#E3BAFF".toColorInt()))
+            CompactButton(
+                modifier = Modifier
+                    .width(32.dp)
+                    .aspectRatio(1f)
+                    .background(
+                        color = color,
+                        shape = CircleShape
+                    ),
+                colors = ButtonDefaults.primaryButtonColors(color, color),
+                content = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_24dp),
+                        contentDescription = "Play icon",
+                        tint = Color.Black
                     )
-                    Box(modifier = Modifier.height(4.dp))
+                },
+                onClick = {
+                    navController.navigate(Section.Timer.baseRoute)
                 }
-            }
+            )
+        }
 
-            item {
-                val color = state.playCompactButtonUiState.backgroundColor
+        item {
+            Text(
+                modifier = Modifier.padding(top = 12.dp),
+                text = "v$versionName ($versionCode)",
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = TextUnit(10f, TextUnitType.Sp)
+            )
+        }
+
+        item {
+            val color = Color(("#E3BAFF".toColorInt()))
+
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.padding(top = 12.dp),
+                    text = stringResource(R.string.app_settings_button_description),
+                    textAlign = TextAlign.Center,
+                    color = Color.White,
+                    fontSize = TextUnit(10f, TextUnitType.Sp)
+                )
                 CompactButton(
                     modifier = Modifier
                         .width(32.dp)
@@ -127,62 +146,15 @@ fun SetupView(
                     colors = ButtonDefaults.primaryButtonColors(color, color),
                     content = {
                         Icon(
-                            imageVector = ImageVector.vectorResource(id = state.playCompactButtonUiState.iconId),
-                            contentDescription = state.playCompactButtonUiState.iconDescription,
-                            tint = state.playCompactButtonUiState.iconColor
+                            imageVector = ImageVector.vectorResource(id = R.drawable.ic_settings),
+                            contentDescription = "Settings icon",
+                            tint = Color.Black
                         )
                     },
                     onClick = {
-                        viewModel.userHasTappedPlayButton()
+                        openAppSettings()
                     }
                 )
-            }
-
-            item {
-                Text(
-                    modifier = Modifier.padding(top = 12.dp),
-                    text = stringResource(state.versionUiState.textId, versionName, versionCode),
-                    textAlign = TextAlign.Center,
-                    color = state.versionUiState.color,
-                    fontSize = TextUnit(10f, TextUnitType.Sp)
-                )
-            }
-
-            item {
-                val color = state.settingsCompactButtonUiState.backgroundColor
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier.padding(top = 12.dp),
-                        text = stringResource(state.settingsUiState.textId),
-                        textAlign = TextAlign.Center,
-                        color = state.settingsUiState.color,
-                        fontSize = TextUnit(10f, TextUnitType.Sp)
-                    )
-                    CompactButton(
-                        modifier = Modifier
-                            .width(32.dp)
-                            .aspectRatio(1f)
-                            .background(
-                                color = color,
-                                shape = CircleShape
-                            ),
-                        colors = ButtonDefaults.primaryButtonColors(color, color),
-                        content = {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(id = state.settingsCompactButtonUiState.iconId),
-                                contentDescription = state.settingsCompactButtonUiState.iconDescription,
-                                tint = state.settingsCompactButtonUiState.iconColor
-                            )
-                        },
-                        onClick = {
-                            viewModel.userHasTappedSettingsButton()
-                        }
-                    )
-                }
             }
         }
     }

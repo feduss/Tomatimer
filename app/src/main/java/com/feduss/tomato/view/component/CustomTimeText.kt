@@ -4,9 +4,9 @@ import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.core.graphics.toColorInt
 import androidx.wear.compose.material.TimeTextDefaults
 import androidx.wear.compose.material.curvedText
-import com.feduss.tomato.uistate.extension.PurpleCustom
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ResponsiveTimeText
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
@@ -20,7 +20,7 @@ fun CustomTimeText(columnState: ScalingLazyColumnState, endCurvedText: String) {
         DateFormat.getBestDateTimePattern(Locale.getDefault(), "HH:mm")
     )
 
-    val textColor = Color.PurpleCustom
+    val textColor = Color("#E3BAFF".toColorInt())
 
     val modifier = Modifier.scrollAway(columnState)
 
