@@ -3,16 +3,12 @@ package com.feduss.tomato.view
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController

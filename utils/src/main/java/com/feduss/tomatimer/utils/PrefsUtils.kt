@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.enums.PrefParamName
+import androidx.core.content.edit
 
 class PrefsUtils {
 
@@ -18,7 +19,7 @@ class PrefsUtils {
         }
 
         fun setPref(context: Context, pref: String, newValue: String?) {
-            getSharedPreferences(context).edit().putString(pref, newValue).apply()
+            getSharedPreferences(context).edit { putString(pref, newValue) }
         }
 
         fun setNextTimer(context: Context, chipType: ChipType?, currentCycle: Int) {

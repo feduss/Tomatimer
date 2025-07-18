@@ -14,11 +14,9 @@
             <option value="$PROJECT_DIR$/business" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/entity" />
-            <option value="$PROJECT_DIR$/uistate" />
             <option value="$PROJECT_DIR$/utils" />
           </set>
         </option>
-        <option name="resolveExternalAnnotations" value="false" />
       </GradleProjectSettings>
     </option>
   </component>

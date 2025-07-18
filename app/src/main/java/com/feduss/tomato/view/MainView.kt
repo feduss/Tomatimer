@@ -1,29 +1,31 @@
 package com.feduss.tomato.view
 
 import android.Manifest
+import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.text.format.DateFormat
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.core.graphics.toColorInt
+import androidx.core.app.AlarmManagerCompat.canScheduleExactAlarms
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.TimeTextDefaults
-import androidx.wear.compose.material.curvedText
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import com.feduss.tomatimer.entity.enums.OptionalParams
@@ -43,11 +45,6 @@ import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.feduss.tomato.viewmodel.timer.TimerViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.AppScaffold
-import com.google.android.horologist.compose.layout.rememberColumnState
-import com.google.android.horologist.compose.layout.scrollAway
-import com.google.android.horologist.compose.navscaffold.WearNavScaffold
-import com.google.android.horologist.compose.navscaffold.scrollable
-import java.util.*
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
@@ -64,13 +61,12 @@ fun MainActivity(
         mutableStateOf("")
     }
 
-    val notificationPermissionRequest = rememberLauncherForActivityResult(
+    val permissionsRequest = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         when {
-            permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false) -> {
-
-            } else -> {
+            permissions.getOrDefault(Manifest.permission.POST_NOTIFICATIONS, false) -> {}
+            else -> {
 
             }
         }
@@ -81,7 +77,7 @@ fun MainActivity(
             if (event == Lifecycle.Event.ON_RESUME) {
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    notificationPermissionRequest.launch(
+                    permissionsRequest.launch(
                         arrayOf(
                             Manifest.permission.POST_NOTIFICATIONS
                         )
@@ -112,8 +108,10 @@ fun MainActivity(
                         context = context,
                         navController = navController,
                         viewModel = setupViewModel,
-                        columnState =  it
-                    ) { openAppSettings(activity) }
+                        columnState =  it,
+                        openAppSettings =  { openAppSettings(activity) },
+                        openAlarmSettings =  { openScheduleExactAlarmPermissionSetting(activity) },
+                    )
                 }
             }
 
@@ -196,6 +194,14 @@ private fun openNotification(context: Context, activity: MainViewController) {
 fun openAppSettings(activity: MainViewController) {
     val intent = Intent(
         Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+        Uri.fromParts("package", activity.packageName, null)
+    )
+    activity.startActivity(intent)
+}
+
+fun openScheduleExactAlarmPermissionSetting(activity: MainViewController) {
+    val intent = Intent(
+        Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
         Uri.fromParts("package", activity.packageName, null)
     )
     activity.startActivity(intent)

@@ -2,7 +2,6 @@ package com.feduss.tomato.viewmodel.notification
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.feduss.tomatimer.business.TimerInteractor
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomato.helper.PrefsHelper
 import com.feduss.tomato.view.notification.NotificationViewController

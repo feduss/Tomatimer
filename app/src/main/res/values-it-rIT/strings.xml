@@ -18,4 +18,5 @@
     <string name="continue_button">Continua</string>
     <string name="app_settings_button_description">Impostazioni app</string>
     <string name="skip_timer">Vuoi davvero saltare questo timer?</string>
+    <string name="setup_schedule_alarm_warning">Consenti la programmazione di sveglie precise per poter continuare.</string>
 </resources>

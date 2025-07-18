@@ -3,7 +3,6 @@ package com.feduss.tomato.viewmodel.edit
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.feduss.tomatimer.business.TimerInteractor
 import com.feduss.tomatimer.entity.enums.ChipType
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils

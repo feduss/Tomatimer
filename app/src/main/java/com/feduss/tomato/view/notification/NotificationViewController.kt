@@ -2,7 +2,6 @@ package com.feduss.tomato.view.notification
 
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
-import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.os.*
@@ -50,7 +49,7 @@ class NotificationViewController : AppCompatActivity() {
 
         Log.e("LogTest: ", "NotificationViewController init")
 
-        (getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).also {
+        (getSystemService(KEYGUARD_SERVICE) as KeyguardManager).also {
             it.requestDismissKeyguard(this, null)
         }
 
@@ -83,7 +82,7 @@ class NotificationViewController : AppCompatActivity() {
         //Else, i.e. is active, vibrate
         if(dndStatus == 0) {
 
-            val audio = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val audio = context.getSystemService(AUDIO_SERVICE) as AudioManager
 
             when (audio.ringerMode) {
                 AudioManager.RINGER_MODE_NORMAL -> {

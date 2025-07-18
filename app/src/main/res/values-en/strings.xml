@@ -18,4 +18,5 @@
     <string name="continue_button">Next</string>
     <string name="app_settings_button_description">App Settings</string>
     <string name="skip_timer">Do you really want to skip this timer?</string>
+    <string name="setup_schedule_alarm_warning">Grant alarms and reminders permission to enable play button.</string>
 </resources>

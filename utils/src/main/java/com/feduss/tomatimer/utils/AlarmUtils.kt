@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.*
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.AlarmManagerCompat.canScheduleExactAlarms
 import com.feduss.tomatimer.entity.enums.PrefParamName
 
 class AlarmUtils {
@@ -19,6 +20,13 @@ class AlarmUtils {
 
         fun<T> setBackgroundAlert(context: Context, timerReceiverClass: Class<T>) {
             removeBackgroundAlert(context, timerReceiverClass)
+
+            val isTimerActive = PrefsUtils.getPref(
+                context,
+                PrefParamName.IsTimerActive.name
+            )?.toBoolean() ?: false
+
+            if (!isTimerActive) return;
 
             val timerSecondsRemaining = PrefsUtils.getPref(
                 context,
@@ -42,13 +50,15 @@ class AlarmUtils {
             val alarmTime = (timerSecondsRemaining * 1000L) + currentMillisecondsTimestamp
 
             val alarmClockInfo = AlarmManager.AlarmClockInfo(alarmTime, null)
-            alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
+            if (canScheduleExactAlarms(alarmManager)) {
+                alarmManager.setAlarmClock(alarmClockInfo, pendingIntent)
 
-            PrefsUtils.setPref(
-                context,
-                PrefParamName.AlarmSetTime.name,
-                (alarmTime / 1000).toString()
-            )
+                PrefsUtils.setPref(
+                    context,
+                    PrefParamName.AlarmSetTime.name,
+                    (alarmTime / 1000).toString()
+                )
+            }
         }
 
         fun<T> removeBackgroundAlert(context: Context, timerReceiverClass: Class<T>) {

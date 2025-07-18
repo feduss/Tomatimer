@@ -1,13 +1,26 @@
 package com.feduss.tomato.view.setup
 
+import android.app.AlarmManager
 import android.content.Context
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,8 +32,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.core.app.AlarmManagerCompat.canScheduleExactAlarms
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.wear.compose.foundation.lazy.items
 import androidx.wear.compose.material.ButtonDefaults
@@ -36,7 +54,6 @@ import com.feduss.tomato.viewmodel.setup.SetupViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
 import com.google.android.horologist.compose.layout.ScalingLazyColumn
 import com.google.android.horologist.compose.layout.ScalingLazyColumnState
-import com.google.android.horologist.compose.navscaffold.ScrollableScaffoldContext
 
 @OptIn(ExperimentalHorologistApi::class)
 @Composable
@@ -45,8 +62,21 @@ fun SetupView(
     navController: NavHostController = rememberSwipeDismissableNavController(),
     viewModel: SetupViewModel = hiltViewModel(),
     columnState: ScalingLazyColumnState,
-    openAppSettings: () -> Unit
+    openAppSettings: () -> Unit,
+    openAlarmSettings: () -> Unit,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
 ) {
+
+    val defaultColor = Color(("#E3BAFF".toColorInt()))
+    val disabledColor = Color.LightGray
+
+    val alarmManager by remember {
+        mutableStateOf(context.getSystemService(Context.ALARM_SERVICE) as AlarmManager)
+    }
+
+    var canScheduleExactAlarms by remember {
+        mutableStateOf(false)
+    }
 
     //Go to timer screen if there was an active timer
     restoreSavedTimerFlow(context, viewModel, navController)
@@ -58,6 +88,20 @@ fun SetupView(
     LaunchedEffect(updateChipState) {
         updateChipState?.value?.let { newValue ->
             viewModel.updateLastSelectedChip(newValue)
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                canScheduleExactAlarms = canScheduleExactAlarms(alarmManager)
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -88,7 +132,7 @@ fun SetupView(
         }
 
         item {
-            val color = Color(("#E3BAFF".toColorInt()))
+            val color = if (canScheduleExactAlarms) defaultColor else disabledColor
             CompactButton(
                 modifier = Modifier
                     .width(32.dp)
@@ -97,7 +141,11 @@ fun SetupView(
                         color = color,
                         shape = CircleShape
                     ),
-                colors = ButtonDefaults.primaryButtonColors(color, color),
+                colors = ButtonDefaults.primaryButtonColors(
+                    color,
+                    color
+                ),
+                enabled = canScheduleExactAlarms,
                 content = {
                     Icon(
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_play_24dp),
@@ -109,6 +157,45 @@ fun SetupView(
                     navController.navigate(Section.Timer.baseRoute)
                 }
             )
+        }
+
+        if (!canScheduleExactAlarms) {
+           item {
+               Column(
+                   verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
+                   horizontalAlignment = Alignment.CenterHorizontally
+               ) {
+                   Text(
+                       modifier = Modifier.padding(top = 12.dp),
+                       text = stringResource(viewModel.scheduleAlarmWarningId),
+                       textAlign = TextAlign.Center,
+                       color = Color.White,
+                       fontSize = TextUnit(10f, TextUnitType.Sp),
+                       lineHeight = TextUnit(16f, TextUnitType.Sp)
+                   )
+
+                   CompactButton(
+                       modifier = Modifier
+                           .width(32.dp)
+                           .aspectRatio(1f)
+                           .background(
+                               color = defaultColor,
+                               shape = CircleShape
+                           ),
+                       colors = ButtonDefaults.primaryButtonColors(defaultColor, defaultColor),
+                       content = {
+                           Icon(
+                               imageVector = ImageVector.vectorResource(id = R.drawable.ic_alarm_settings),
+                               contentDescription = "Alarm settings icon",
+                               tint = Color.Black
+                           )
+                       },
+                       onClick = {
+                           openAlarmSettings()
+                       }
+                   )
+               }
+           }
         }
 
         item {

@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
@@ -37,8 +36,6 @@ import com.feduss.tomatimer.entity.enums.Consts
 import com.feduss.tomato.R
 import com.feduss.tomato.viewmodel.edit.EditViewModel
 import com.google.android.horologist.annotations.ExperimentalHorologistApi
-import com.google.android.horologist.composables.picker.toRotaryScrollAdapter
-import com.google.android.horologist.compose.rotaryinput.rotaryWithSnap
 
 
 @OptIn(ExperimentalHorologistApi::class)
@@ -48,8 +45,6 @@ fun EditView(
     navController: NavController,
     viewModel: EditViewModel
 ) {
-
-    val haptic = LocalHapticFeedback.current
 
     val color = Color(("#E3BAFF".toColorInt()))
 
@@ -78,9 +73,10 @@ fun EditView(
     }
 
     CircularProgressIndicator(
-        progress = progress.toFloat(),
+        progress = { progress.toFloat() },
         modifier = Modifier.fillMaxSize(),
         color = color,
+        trackColor = Color.Transparent,
         strokeWidth = 4.dp
     )
     Column(
@@ -107,10 +103,7 @@ fun EditView(
             onSelected = {},
             modifier = Modifier
                 .fillMaxHeight()
-                .weight(1f)
-                .rotaryWithSnap(
-                    state.toRotaryScrollAdapter()
-                ),
+                .weight(1f),
             separation = 4.dp,
         ) {
             Text(

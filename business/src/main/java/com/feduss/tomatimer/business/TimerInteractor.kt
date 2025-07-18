@@ -2,8 +2,6 @@ package com.feduss.tomatimer.business
 
 import javax.inject.Inject
 
-interface TimerInteractor {
-}
+interface TimerInteractor
 
-class TimerInteractorImpl @Inject constructor(): TimerInteractor {
-}
+class TimerInteractorImpl @Inject constructor(): TimerInteractor

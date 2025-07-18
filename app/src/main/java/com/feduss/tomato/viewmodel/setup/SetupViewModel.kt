@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.feduss.tomatimer.entity.enums.PrefParamName
 import com.feduss.tomatimer.entity.models.Chip
 import com.feduss.tomatimer.utils.PrefsUtils
+import com.feduss.tomato.R
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -38,6 +39,9 @@ class SetupViewModel @AssistedInject constructor(
     }
 
     private var lastSelectedChipIndex: Int? = null
+
+    // Copies
+    val scheduleAlarmWarningId = R.string.setup_schedule_alarm_warning
 
     fun updateLastSelectedChip(newValue: String) {
         lastSelectedChipIndex?.let { index ->
