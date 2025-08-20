@@ -85,16 +85,14 @@ fun SetupView(
     val updateChipState = navController.currentBackStackEntry?.savedStateHandle?.getLiveData<String>(
         Consts.NewValueKey.value)?.observeAsState()
 
-    LaunchedEffect(updateChipState) {
-        updateChipState?.value?.let { newValue ->
-            viewModel.updateLastSelectedChip(newValue)
-        }
-    }
-
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 canScheduleExactAlarms = canScheduleExactAlarms(alarmManager)
+
+                updateChipState?.value?.let { newValue ->
+                    viewModel.updateLastSelectedChip(newValue)
+                }
             }
         }
 
