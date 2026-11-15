@@ -15,6 +15,11 @@ dependencyResolutionManagement {
         mavenCentral()
         maven { url 'https://jitpack.io' }
     }
+    versionCatalogs {
+        libs {
+            from(files("gradle/libs.version.toml"))
+        }
+    }
 }
 rootProject.name = "Pomodoro"
 include ':app'

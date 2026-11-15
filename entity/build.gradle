@@ -1,18 +1,15 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    alias(libs.plugins.android.library)
 }
 
 android {
     namespace 'com.feduss.tomatimer.entity'
-    compileSdk 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk 26
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -30,6 +27,6 @@ android {
 dependencies {
 
     //Kotlin core
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation libs.androidx.core.ktx
 
 }

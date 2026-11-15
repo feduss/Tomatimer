@@ -1,18 +1,15 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
+    alias(libs.plugins.android.library)
 }
 
 android {
     namespace 'com.feduss.tomatimer.utils'
-    compileSdk 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk 26
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -33,17 +30,17 @@ dependencies {
     implementation project(path: ':entity')
 
     //Kotlin core
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation libs.androidx.core.ktx
 
     //Androidx for legacy support
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.wear:wear-ongoing:1.0.0'
+    implementation libs.androidx.legacy.support.v4
+    implementation libs.androidx.wear.ongoing
 
     //Testing
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
 
     //SharedPreferences
-    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation libs.androidx.preference.ktx
 }

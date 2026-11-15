@@ -1,19 +1,17 @@
 plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-    id 'kotlin-kapt'
-    id 'com.google.dagger.hilt.android'
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.legacy.kapt)
+    alias(libs.plugins.hilt.android)
 }
 
 android {
     namespace 'com.feduss.tomatimer.data'
-    compileSdk 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk 26
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -34,20 +32,21 @@ dependencies {
     implementation project(path: ':entity')
 
     //Kotlin core
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation libs.androidx.core.ktx
 
     //Androidx for legacy support
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation libs.androidx.legacy.support.v4
 
     //Testing
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.7.0'
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.espresso.core
 
     //Hilt
-    implementation 'com.google.dagger:hilt-android:2.57'
-    kapt 'com.google.dagger:hilt-android-compiler:2.57'
-    implementation "androidx.hilt:hilt-navigation-compose:1.2.0"
+    implementation libs.hilt.android
+    kapt libs.hilt.android.compiler
+    implementation libs.androidx.hilt.navigation.compose
+    implementation libs.javax.inject
 }
 
 // Allow references to generated code
